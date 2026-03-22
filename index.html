@@ -1,0 +1,5156 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Πινγκ Πονγκ Γεωγραφίας - Β΄ Γυμνασίου</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg1:#1f8f6b;
+      --bg2:#2e73c5;
+      --bg3:#54b948;
+      --ink:#17324d;
+      --good:#1ea95a;
+      --bad:#e05252;
+      --soft:#eef4ff;
+      --shadow:0 8px 24px rgba(0,0,0,0.14);
+      --game-scale:1;
+      --gold:#ffcf4d;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin:0;
+      padding:0;
+      min-height:100%;
+      font-family:'Comfortaa', sans-serif;
+      background:
+        linear-gradient(135deg, rgba(31,143,107,0.18), rgba(46,115,197,0.15), rgba(84,185,72,0.16)),
+        #f7f8ff;
+      color:var(--ink);
+      overflow-x:hidden;
+    }
+    body.compact-lock { overflow:hidden; }
+    .appShell {
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    #welcomeScreen {
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.35), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.28), transparent 24%),
+        linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+      color:white;
+      position:relative;
+      overflow:hidden;
+    }
+    #welcomeScreen::before,
+    #welcomeScreen::after {
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,0.12);
+      filter: blur(10px);
+      pointer-events:none;
+    }
+    #welcomeScreen::before {
+      width:320px; height:320px; left:-80px; top:-70px;
+    }
+    #welcomeScreen::after {
+      width:280px; height:280px; right:-70px; bottom:-60px;
+    }
+
+    .cornerLogo {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 82px;
+      max-width: 16vw;
+      z-index: 3;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+    }
+
+    .welcomeInner {
+      width:min(1180px, 100%);
+      margin:0 auto;
+      padding:10px 14px 4px;
+      flex:1;
+      display:grid;
+      grid-template-columns:0.9fr 1.1fr;
+      align-items:center;
+      gap:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .welcomeLeft {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .heroCard {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.24);
+      border-radius: 22px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+      padding: 10px;
+      width: min(360px, 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .heroCard img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 16px;
+      display: block;
+    }
+
+    .welcomeBall {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff7cf, #ffbd3e 58%, #ff8a00 100%);
+      box-shadow: 0 0 0 8px rgba(255,189,62,0.12), 0 8px 16px rgba(255,138,0,0.35);
+      top: 50%;
+      left: 7%;
+      z-index: 3;
+      animation: pingpongWelcome 2.2s ease-in-out infinite alternate;
+    }
+
+    .welcomeTrail {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background:
+        radial-gradient(circle at 18% 42%, rgba(255,255,255,0.18), transparent 7%),
+        radial-gradient(circle at 38% 58%, rgba(255,255,255,0.16), transparent 6%),
+        radial-gradient(circle at 57% 40%, rgba(255,255,255,0.13), transparent 5%),
+        radial-gradient(circle at 77% 60%, rgba(255,255,255,0.11), transparent 5%);
+      animation: trailPulse 2.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes pingpongWelcome {
+      0% { left:8%; transform: translateY(-44px) scale(1); }
+      25% { left:30%; transform: translateY(10px) scale(0.96); }
+      50% { left:50%; transform: translateY(-16px) scale(1); }
+      75% { left:70%; transform: translateY(12px) scale(0.95); }
+      100% { left:88%; transform: translateY(-38px) scale(1); }
+    }
+    @keyframes trailPulse {
+      0% { opacity:0.55; }
+      100% { opacity:1; }
+    }
+
+    .welcomeRight {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:8px;
+      padding-right:4px;
+    }
+    .welcomeTitle {
+      margin:0;
+      font-size:clamp(1.7rem, 3.4vw, 2.8rem);
+      line-height:1.02;
+      font-weight:700;
+    }
+    .welcomeSubtitle {
+      margin:0;
+      font-size:clamp(0.92rem, 1.6vw, 1.12rem);
+      line-height:1.24;
+      opacity:0.96;
+      font-weight:600;
+      max-width:650px;
+    }
+
+    .instructionCard, .avatarCard {
+      background: rgba(255,255,255,0.13);
+      border:1px solid rgba(255,255,255,0.22);
+      border-radius:18px;
+      padding:10px 10px 8px;
+      backdrop-filter:blur(8px);
+    }
+    .instructionCard h2, .avatarCard h2 {
+      margin:0 0 8px;
+      font-size:0.96rem;
+    }
+
+    .instructionGrid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px 8px;
+    }
+    .instructionItem {
+      background: rgba(255,255,255,0.12);
+      border-radius:12px;
+      padding:8px 9px;
+      line-height:1.18;
+      font-size:0.79rem;
+      font-weight:600;
+    }
+
+    .avatarGrid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .avatarSelector label {
+      display:block;
+      margin-bottom:5px;
+      font-size:0.78rem;
+      font-weight:700;
+    }
+    .avatarSelector select {
+      width:100%;
+      border:none;
+      border-radius:12px;
+      padding:9px 10px;
+      font-family:inherit;
+      font-size:0.9rem;
+      background:rgba(255,255,255,0.92);
+      color:var(--ink);
+      font-weight:700;
+      min-height:40px;
+    }
+
+    .welcomeActions {
+      display:flex;
+      gap:8px;
+      margin-top:2px;
+    }
+    .ctaBtn {
+      border:none;
+      border-radius:14px;
+      padding:11px 18px;
+      font-family:inherit;
+      font-size:0.96rem;
+      font-weight:700;
+      cursor:pointer;
+      transition: transform 0.18s ease;
+      box-shadow:0 10px 22px rgba(0,0,0,0.18);
+    }
+    .ctaBtn:hover { transform:translateY(-2px); }
+    .ctaPrimary {
+      background:white;
+      color:#8b1f4c;
+      min-width:220px;
+    }
+
+    .globalFooter {
+      text-align:center;
+      padding:6px 14px 8px;
+      font-size:0.74rem;
+      line-height:1.22;
+      font-weight:600;
+    }
+    #welcomeScreen .globalFooter {
+      color:rgba(255,255,255,0.96);
+      z-index:1;
+      position:relative;
+    }
+
+    #countdownOverlay {
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.08), rgba(17, 18, 38, 0.72)),
+        rgba(17, 18, 38, 0.62);
+      backdrop-filter:blur(8px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+      overflow:hidden;
+    }
+    .countdownNumber {
+      color:white;
+      font-size:clamp(4rem, 14vw, 9rem);
+      font-weight:700;
+      text-shadow:0 8px 24px rgba(0,0,0,0.28);
+      animation:popIn 0.9s ease;
+      z-index:2;
+    }
+    @keyframes popIn {
+      0% { transform:scale(0.35); opacity:0; }
+      40% { transform:scale(1.15); opacity:1; }
+      100% { transform:scale(1); opacity:1; }
+    }
+
+    #gameScreen {
+      display:none;
+      min-height:100vh;
+      height:100vh;
+      padding:0;
+      overflow:hidden;
+      background:transparent;
+    }
+    .gameViewport {
+      width:100vw;
+      height:100vh;
+      overflow:hidden;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:6px;
+    }
+    .gameScaleWrap {
+      width:1320px;
+      height:780px;
+      transform:scale(var(--game-scale));
+      transform-origin:top center;
+      will-change:transform;
+    }
+    .wrap {
+      width:1320px;
+      height:780px;
+      margin:0 auto;
+      display:grid;
+      grid-template-rows:auto auto 86px auto auto;
+      gap:8px;
+      overflow:hidden;
+      align-content:start;
+    }
+
+    .topHeader {
+      position:relative;
+      background:linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+      color:white;
+      border-radius:18px;
+      padding:12px 84px 12px 16px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .topHeader::before {
+      content:"";
+      position:absolute;
+      inset:auto auto -35px -35px;
+      width:160px;
+      height:160px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.12);
+    }
+    .topHeader h1 {
+      margin:0 0 2px;
+      font-size:1.95rem;
+      line-height:1.04;
+      position:relative;
+      z-index:1;
+    }
+    .topHeader p {
+      margin:0;
+      font-size:1.05rem;
+      line-height:1.14;
+      font-weight:600;
+      position:relative;
+      z-index:1;
+    }
+    .topHeader .cornerLogo {
+      top: 8px;
+      right: 8px;
+      width: 62px;
+      max-width: none;
+    }
+
+    .controlPanel {
+      background:rgba(255,255,255,0.84);
+      backdrop-filter:blur(8px);
+      border:1px solid #ffffffaa;
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:10px;
+      display:grid;
+      grid-template-columns:1.25fr 1fr 1fr auto;
+      gap:10px;
+      align-items:end;
+    }
+    .controlGroup label {
+      display:block;
+      margin-bottom:4px;
+      font-size:0.88rem;
+      font-weight:700;
+      color:#4b4d73;
+    }
+    .controlGroup select,
+    .controlGroup button {
+      width:100%;
+      border:none;
+      border-radius:12px;
+      padding:10px 12px;
+      font-family:inherit;
+      font-size:1.05rem;
+      background:var(--soft);
+      color:var(--ink);
+      font-weight:600;
+      min-height:44px;
+    }
+    .controlGroup select:focus {
+      outline:3px solid rgba(107,92,255,0.18);
+    }
+    .gameBtn {
+      background:linear-gradient(135deg, #ffb000, #ff6e55);
+      color:#5d2504 !important;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(255,110,85,0.24);
+      transition:transform 0.16s ease;
+    }
+    .gameBtn:hover { transform:translateY(-1px); }
+
+    .scoreboard {
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:8px;
+      align-items:stretch;
+    }
+    .playerCard {
+      background:linear-gradient(180deg, #ffffff, #f6f8ff);
+      border-radius:16px;
+      padding:12px;
+      border:3px solid transparent;
+      box-shadow:var(--shadow);
+      text-align:center;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      min-height:100px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:2px;
+    }
+    .avatarDisplay {
+      font-size:1.8rem;
+      line-height:1;
+      margin-bottom:2px;
+    }
+    .playerCard h2 {
+      margin:0;
+      font-size:1.2rem;
+      color:#36406b;
+      line-height:1.08;
+    }
+    .score {
+      font-size:2.6rem;
+      font-weight:700;
+      color:#121733;
+      line-height:1.02;
+    }
+    .turnLight {
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      margin:4px auto 0;
+      background:#d9deef;
+      box-shadow:inset 0 0 4px rgba(0,0,0,0.22);
+      transition:0.18s ease;
+    }
+    .active-turn {
+      background:linear-gradient(180deg, #ffffff, #fff7e8);
+      border-color:var(--gold);
+      box-shadow:0 0 0 4px rgba(255,207,77,0.16), var(--shadow);
+      transform:translateY(-1px);
+    }
+    .active-turn .turnLight {
+      background:var(--gold);
+      box-shadow:0 0 10px rgba(255,207,77,0.8), 0 0 18px rgba(255,207,77,0.45);
+    }
+    .winner-glow {
+      animation:winnerGlow 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes winnerGlow {
+      0% { box-shadow: 0 0 0 4px rgba(255,255,255,0.0), 0 0 0 rgba(255,255,255,0); }
+      100% { box-shadow: 0 0 0 4px rgba(255,255,255,0.18), 0 0 24px rgba(255,255,255,0.46); }
+    }
+
+    .midInfo {
+      min-width:180px;
+      background:linear-gradient(180deg, #ffffff, #f8f4ff);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:10px 14px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      text-align:center;
+      gap:4px;
+      font-weight:700;
+      color:#5c2a90;
+      font-size:1.1rem;
+    }
+
+    .arena {
+      position:relative;
+      height:86px;
+      border-radius:18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.5)),
+        linear-gradient(135deg, #ffd9c3, #f4ddff, #d6f6ff);
+      border:3px solid rgba(255,255,255,0.85);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .net {
+      position:absolute;
+      left:50%;
+      top:0; bottom:0;
+      width:4px;
+      transform:translateX(-50%);
+      background:repeating-linear-gradient(to bottom, #8c8db2 0 7px, transparent 7px 12px);
+      opacity:0.9;
+    }
+    .ball {
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:22px;
+      height:22px;
+      transform:translate(-50%, -50%);
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff7cf, #ffbd3e 58%, #ff8a00 100%);
+      box-shadow:0 8px 16px rgba(255,138,0,0.28);
+      transition:left 0.35s ease;
+    }
+
+    .questionPanel {
+      background:rgba(255,255,255,0.88);
+      backdrop-filter:blur(8px);
+      border:1px solid #ffffffcc;
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:unset;
+      height:auto;
+      overflow:hidden;
+      align-self:start;
+    }
+    .questionMeta {
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+    .turnText {
+      font-size:1.2rem;
+      font-weight:700;
+      color:#2b3a68;
+      line-height:1.1;
+    }
+    .category {
+      justify-self:end;
+      background:linear-gradient(135deg, #ffe6f1, #efe7ff);
+      color:#7b1d72;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:0.95rem;
+      font-weight:700;
+      text-align:center;
+      line-height:1.05;
+      max-width:520px;
+    }
+    .question {
+      min-height:80px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font-size:1.65rem;
+      line-height:1.18;
+      font-weight:700;
+      color:#161b36;
+      padding:8px 12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.72), rgba(246,248,255,0.72));
+      border-radius:14px;
+    }
+    .question.idle {
+      color:#66719b;
+      font-size:1.15rem;
+      font-style:italic;
+      background:linear-gradient(180deg, rgba(250,251,255,0.9), rgba(243,246,255,0.9));
+    }
+    .answers {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      flex:0 0 auto;
+      align-content:start;
+    }
+    .answers.idle { display:none; }
+    .answerBtn {
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
+      min-height:64px;
+      font-family:inherit;
+      font-size:1.22rem;
+      line-height:1.15;
+      background:linear-gradient(180deg, #eef3ff, #e5edff);
+      color:#1e2448;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+      box-shadow:0 6px 14px rgba(39,54,97,0.08);
+      text-align:center;
+    }
+    .answerBtn:hover:not(:disabled) {
+      transform:translateY(-1px);
+      background:linear-gradient(180deg, #e4edff, #dbe8ff);
+    }
+    .answerBtn:disabled {
+      opacity:0.86;
+      cursor:default;
+    }
+    .correct {
+      background:linear-gradient(180deg, #c8ffd9, #aff0c4) !important;
+      color:#115b2d !important;
+    }
+    .wrong {
+      background:linear-gradient(180deg, #ffd2d2, #ffbbbb) !important;
+      color:#7b2323 !important;
+    }
+    .message {
+      min-height:24px;
+      text-align:center;
+      font-size:1.05rem;
+      line-height:1.14;
+      font-weight:700;
+      color:#35406f;
+      padding:2px 4px;
+    }
+    #gameScreen .globalFooter {
+      color:#48507e;
+      padding-top:4px;
+      padding-bottom:4px;
+      font-size:0.75rem;
+    }
+    .smallNote {
+      font-size:0.8rem;
+      color:#606792;
+      font-weight:600;
+      line-height:1.12;
+    }
+
+    .confettiLayer {
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:9999;
+    }
+    .confetti {
+      position:absolute;
+      width:10px;
+      height:16px;
+      opacity:0.92;
+      top:-20px;
+      animation:confettiFall linear forwards;
+      border-radius:3px;
+    }
+    @keyframes confettiFall {
+      0% { transform:translateY(0) rotate(0deg); opacity:1; }
+      100% { transform:translateY(110vh) rotate(720deg); opacity:0.9; }
+    }
+
+    @media (max-width:1080px) {
+      .welcomeInner {
+        grid-template-columns:1fr;
+        text-align:center;
+        padding-top:22px;
+      }
+      .welcomeRight {
+        align-items:center;
+        padding-right:0;
+      }
+      .instructionGrid, .avatarGrid {
+        grid-template-columns:1fr;
+      }
+    }
+    @media (max-width:820px) {
+      body.compact-lock { overflow:auto; }
+      #gameScreen {
+        height:auto;
+        min-height:100vh;
+        overflow:auto;
+      }
+      .gameViewport {
+        height:auto;
+        min-height:100vh;
+        padding:8px;
+      }
+      .gameScaleWrap {
+        width:100%;
+        height:auto;
+        transform:none !important;
+      }
+      .wrap {
+        width:100%;
+        height:auto;
+        min-height:calc(100vh - 16px);
+        grid-template-rows:auto;
+      }
+      .scoreboard, .controlPanel, .answers, .questionMeta {
+        grid-template-columns:1fr;
+      }
+      .midInfo { min-width:unset; }
+      .category { justify-self:stretch; max-width:none; }
+      .answerBtn { min-height:56px; }
+    }
+  </style>
+</head>
+<body class="compact-lock">
+  <div class="appShell">
+    <section id="welcomeScreen">
+      <img src="logo.png" alt="Logo" class="cornerLogo">
+
+      <div class="welcomeInner">
+        <div class="welcomeLeft">
+          <div class="heroCard">
+            <div class="welcomeTrail"></div>
+            <div class="welcomeBall"></div>
+            <img src="image.png" alt="Γεωγραφία Β΄ Γυμνασίου">
+          </div>
+        </div>
+
+        <div class="welcomeRight">
+          <h1 class="welcomeTitle">Πινγκ Πονγκ Γεωγραφίας</h1>
+          <p class="welcomeSubtitle">
+            Μια διαδραστική επανάληψη στη Γεωγραφία της Β΄ Γυμνασίου,
+            οργανωμένη με βάση όλα τα μαθήματα και το υλικό των ερωτήσεων.
+          </p>
+
+          <div class="instructionCard">
+            <h2>Οδηγίες</h2>
+            <div class="instructionGrid">
+              <div class="instructionItem">🏓 Δύο παίκτες ή ομάδες απαντούν εναλλάξ σε ερωτήσεις πολλαπλής επιλογής Γεωγραφίας.</div>
+              <div class="instructionItem">💡 Η ομάδα που έχει σειρά φωτίζεται με χρυσή ένδειξη.</div>
+              <div class="instructionItem">✅ Κάθε σωστή απάντηση δίνει 1 πόντο.</div>
+              <div class="instructionItem">❌ Σε λάθος απάντηση εμφανίζεται η σωστή επιλογή.</div>
+              <div class="instructionItem">📚 Μπορείς να επιλέξεις όλη την ύλη ή συγκεκριμένο μάθημα.</div>
+              <div class="instructionItem">🏆 Νικήτρια είναι η ομάδα με το υψηλότερο σκορ στο τέλος.</div>
+            </div>
+          </div>
+
+          <div class="avatarCard">
+            <h2>Επιλογή avatar ομάδων</h2>
+            <div class="avatarGrid">
+              <div class="avatarSelector">
+                <label for="avatar1">Παίκτης/τρια - Ομάδα 1</label>
+                <select id="avatar1">
+                  <option value="🌍">🌍</option>
+                  <option value="🧭">🧭</option>
+                  <option value="🗺️">🗺️</option>
+                  <option value="⛰️">⛰️</option>
+                  <option value="🌋">🌋</option>
+                  <option value="🌊">🌊</option>
+                  <option value="🏞️">🏞️</option>
+                  <option value="🧳">🧳</option>
+                </select>
+              </div>
+              <div class="avatarSelector">
+                <label for="avatar2">Παίκτης/τρια - Ομάδα 2</label>
+                <select id="avatar2">
+                  <option value="🧭">🧭</option>
+                  <option value="🌍">🌍</option>
+                  <option value="🗺️">🗺️</option>
+                  <option value="⛰️">⛰️</option>
+                  <option value="🌋">🌋</option>
+                  <option value="🌊">🌊</option>
+                  <option value="🏞️">🏞️</option>
+                  <option value="🧳">🧳</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="welcomeActions">
+            <button class="ctaBtn ctaPrimary" onclick="startFromWelcome()">Έναρξη Παιχνιδιού</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="globalFooter">
+        Παναγιώτης Δόμβρος, Εκπαιδευτικός Αγγλικής & Θεατρολόγος, Διευθυντής 1ου Γυμνασίου Πυλαίας
+      </div>
+    </section>
+
+    <section id="gameScreen">
+      <div class="gameViewport">
+        <div class="gameScaleWrap" id="gameScaleWrap">
+          <div class="wrap">
+            <header class="topHeader">
+              <img src="logo.png" alt="Logo" class="cornerLogo">
+              <h1>Πινγκ Πονγκ Γεωγραφίας - Β΄ Γυμνασίου</h1>
+              <p>Επίλεξε ύλη Γεωγραφίας και πάτησε έναρξη για να ξεκινήσει ο αγώνας.</p>
+            </header>
+
+            <section class="controlPanel">
+              <div class="controlGroup">
+                <label for="modeSelect">Τύπος ερωτήσεων</label>
+                <select id="modeSelect">
+                  <option value="all">Τυχαίες από όλη την ύλη</option>
+                  <option value="chapter">Συγκεκριμένο μάθημα</option>
+                </select>
+              </div>
+
+              <div class="controlGroup">
+                <label for="chapterSelect">Μάθημα</label>
+                <select id="chapterSelect"></select>
+              </div>
+
+              <div class="controlGroup">
+                <label for="questionCount">Πλήθος ερωτήσεων</label>
+                <select id="questionCount">
+                  <option value="10">10 ερωτήσεις</option>
+                  <option value="15" selected>15 ερωτήσεις</option>
+                  <option value="20">20 ερωτήσεις</option>
+                  <option value="30">30 ερωτήσεις</option>
+                  <option value="40">40 ερωτήσεις</option>
+                  <option value="50">50 ερωτήσεις</option>
+                </select>
+              </div>
+
+              <div class="controlGroup">
+                <label>&nbsp;</label>
+                <button class="gameBtn" onclick="startGame()">Έναρξη / Νέο Παιχνίδι</button>
+              </div>
+            </section>
+
+            <section class="scoreboard">
+              <div class="playerCard" id="player1Card">
+                <div class="avatarDisplay" id="player1AvatarDisplay">🌍</div>
+                <h2>Παίκτης/τρια - Ομάδα 1</h2>
+                <div class="score" id="p1Score">0</div>
+                <div class="turnLight"></div>
+              </div>
+
+              <div class="midInfo">
+                <div id="phaseLabel">Αναμονή έναρξης</div>
+                <div id="roundInfo">Γύρος 0 / 0</div>
+                <div class="smallNote" id="selectionInfo">Επίλεξε μάθημα ή όλη την ύλη και πάτησε έναρξη.</div>
+              </div>
+
+              <div class="playerCard" id="player2Card">
+                <div class="avatarDisplay" id="player2AvatarDisplay">🧭</div>
+                <h2>Παίκτης/τρια - Ομάδα 2</h2>
+                <div class="score" id="p2Score">0</div>
+                <div class="turnLight"></div>
+              </div>
+            </section>
+
+            <div class="arena">
+              <div class="net"></div>
+              <div class="ball" id="ball"></div>
+            </div>
+
+            <section class="questionPanel">
+              <div class="questionMeta">
+                <div class="turnText" id="turnText">Πάτησε «Έναρξη / Νέο Παιχνίδι» για να ξεκινήσει ο αγώνας.</div>
+                <div class="category" id="categoryLabel">Μάθημα: -</div>
+              </div>
+
+              <div class="question idle" id="question">Ο χώρος ερωτήσεων θα ενεργοποιηθεί μόλις επιλεγεί μάθημα και πατηθεί η έναρξη.</div>
+              <div class="answers idle" id="answers"></div>
+              <div class="message" id="message"></div>
+            </section>
+
+            <div class="globalFooter">
+              Παναγιώτης Δόμβρος, Εκπαιδευτικός Αγγλικής & Θεατρολόγος, Διευθυντής του 1ου Γυμνασίου Πυλαίας
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="countdownOverlay">
+    <div class="countdownNumber" id="countdownNumber">3</div>
+  </div>
+
+  <div class="confettiLayer" id="confettiLayer"></div>
+
+  <script>
+    const chapterData = {
+  "L1": {
+    "title": "Μάθημα 1 • Οι έννοιες «Γεωγραφική» και «σχετική» θέση",
+    "short": "Μάθημα 1",
+    "sections": {
+      "L1_S1": {
+        "title": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Πώς ονομάζεται η θέση που προσδιορίζεται σε σχέση με κάποιο άλλο στοιχείο του χώρου;",
+            "options": [
+              "γεωγραφική θέση",
+              "σχετική θέση",
+              "απόλυτη θέση",
+              "μαθηματική θέση"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          },
+          {
+            "prompt": "Πώς ονομάζεται η θέση που προσδιορίζεται με τη χρήση κάποιου συστήματος αναφοράς;",
+            "options": [
+              "απόλυτη θέση",
+              "σχετική θέση",
+              "τοπική θέση",
+              "γεωμορφολογική θέση"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          },
+          {
+            "prompt": "Η γεωγραφική θέση ενός τόπου προσδιορίζεται με βάση:",
+            "options": [
+              "το υψόμετρο και το κλίμα",
+              "το γεωγραφικό πλάτος και το γεωγραφικό μήκος",
+              "τα ποτάμια και τις λίμνες",
+              "τα σύνορα και τους δρόμους"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          },
+          {
+            "prompt": "Για τον προσδιορισμό της σχετικής θέσης χρησιμοποιούμε συχνά:",
+            "options": [
+              "τα σημεία του ορίζοντα",
+              "μόνο αριθμούς",
+              "μόνο ιστορικά στοιχεία",
+              "μόνο υψομετρικές καμπύλες"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          },
+          {
+            "prompt": "Ποιο είναι βασικό πλεονέκτημα της γεωγραφικής θέσης;",
+            "options": [
+              "δείχνει τη σχέση του τόπου με τα γύρω στοιχεία",
+              "δίνει σαφή πληροφορία για το πού ακριβώς βρίσκεται ένας τόπος",
+              "περιγράφει τις οικονομικές δραστηριότητες",
+              "εξηγεί το κλίμα ενός τόπου"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          },
+          {
+            "prompt": "Ποιο είναι βασικό πλεονέκτημα της σχετικής θέσης;",
+            "options": [
+              "δίνει ακριβείς γεωγραφικές συντεταγμένες",
+              "δείχνει πώς σχετίζεται ο τόπος με τον γύρω χώρο",
+              "δείχνει μόνο το υψόμετρο",
+              "δίνει μόνο την οδό και τον αριθμό"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          },
+          {
+            "prompt": "Το Παγκόσμιο Δορυφορικό Σύστημα Εντοπισμού Θέσης παρέχει στον χρήστη:",
+            "options": [
+              "μόνο την κατεύθυνση του ανέμου",
+              "το γεωγραφικό στίγμα με μεγάλη ακρίβεια",
+              "μόνο το όνομα της περιοχής",
+              "την ιστορία του τόπου"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          },
+          {
+            "prompt": "Ποια από τις παρακάτω διατυπώσεις αποτελεί παράδειγμα γεωγραφικής θέσης;",
+            "options": [
+              "Η Άμφισσα βρίσκεται βορειοανατολικά της Πάτρας",
+              "Θα σε περιμένω μπροστά στον σταθμό",
+              "Η Ακρόπολη βρίσκεται στις 37°58΄Β - 23°46΄Α",
+              "Το σπίτι μου είναι το τρίτο μετά το φαρμακείο"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L1",
+            "sectionKey": "L1_S1",
+            "category": "Οι έννοιες «Γεωγραφική» και «σχετική» θέση"
+          }
+        ]
+      }
+    }
+  },
+  "L2": {
+    "title": "Μάθημα 2 • Η σημασία της σχετικής θέσης για τους ανθρώπους",
+    "short": "Μάθημα 2",
+    "sections": {
+      "L2_S1": {
+        "title": "Η σημασία της σχετικής θέσης για τους ανθρώπους",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η σχετική θέση ενός τόπου είναι πιο χρήσιμη όταν θέλουμε να μάθουμε:",
+            "options": [
+              "τις ακριβείς συντεταγμένες του",
+              "τα χαρακτηριστικά και τις δυνατότητές του",
+              "το γεωλογικό του υπόβαθρο",
+              "μόνο το ύψος του"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          },
+          {
+            "prompt": "Η γεωγραφική θέση μιας πόλης μάς πληροφορεί κυρίως:",
+            "options": [
+              "για το ακριβές σημείο όπου βρίσκεται",
+              "για τις επαγγελματικές ασχολίες των κατοίκων",
+              "για την ποιότητα των εδαφών",
+              "για τα ήθη και τα έθιμα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          },
+          {
+            "prompt": "Η σχετική θέση της Αλεξανδρούπολης δείχνει, μεταξύ άλλων, ότι είναι:",
+            "options": [
+              "ορεινή πόλη στον Όλυμπο",
+              "παραθαλάσσια πόλη στο Θρακικό Πέλαγος",
+              "κτισμένη στο κέντρο της Πελοποννήσου",
+              "πόλη χωρίς οδικές συνδέσεις"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          },
+          {
+            "prompt": "Σύμφωνα με το βιβλίο, η Αλεξανδρούπολη βρίσκεται στο ανατολικό άκρο:",
+            "options": [
+              "της Εγνατίας Οδού",
+              "της Πίνδου",
+              "της Ροδόπης",
+              "της Αττικής Οδού"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          },
+          {
+            "prompt": "Για την αγορά ενός διαμερίσματος μεγαλύτερη σημασία έχει συνήθως:",
+            "options": [
+              "η απόλυτη θέση του και μόνο",
+              "η σχετική θέση του ως προς εργασία, σχολείο, πάρκο, στάση",
+              "η γεωλογική ηλικία των πετρωμάτων",
+              "το γεωγραφικό πλάτος της περιοχής"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          },
+          {
+            "prompt": "Ποια αγγελία είναι πιο χρήσιμη για έναν αγοραστή, σύμφωνα με το μάθημα;",
+            "options": [
+              "εκείνη που δίνει μόνο οδό και αριθμό",
+              "εκείνη που περιγράφει προσανατολισμό, απόσταση από θάλασσα και κεντρικό δρόμο",
+              "εκείνη που δεν δίνει καμία πληροφορία",
+              "εκείνη που αναφέρει μόνο το τηλέφωνο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          },
+          {
+            "prompt": "Η σχετική θέση της Ελλάδας δείχνει ότι η χώρα:",
+            "options": [
+              "βρίσκεται στον Αρκτικό Ωκεανό",
+              "βρέχεται από τη Μεσόγειο και έχει επαφές με άλλα μεσογειακά κράτη",
+              "βρίσκεται μακριά από κάθε άλλη ήπειρο",
+              "δεν έχει θαλάσσιους δρόμους"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          },
+          {
+            "prompt": "Η σχετική θέση βοηθά ιδιαίτερα:",
+            "options": [
+              "μόνο στη χαρτογράφηση συντεταγμένων",
+              "στη λήψη αποφάσεων της καθημερινής ζωής",
+              "μόνο στην καταμέτρηση πληθυσμού",
+              "μόνο στη σεισμολογία"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L2",
+            "sectionKey": "L2_S1",
+            "category": "Η σημασία της σχετικής θέσης για τους ανθρώπους"
+          }
+        ]
+      }
+    }
+  },
+  "L3": {
+    "title": "Μάθημα 3 • Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο",
+    "short": "Μάθημα 3",
+    "sections": {
+      "L3_S1": {
+        "title": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Χάρτης ονομάζεται:",
+            "options": [
+              "η φωτογραφία μιας περιοχής από δορυφόρο",
+              "η απεικόνιση μιας περιοχής σε σχέδιο",
+              "η περιγραφή ενός τόπου με λόγια",
+              "το σύνολο των γεωγραφικών συντεταγμένων"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          },
+          {
+            "prompt": "Οι γενικοί χάρτες παρουσιάζουν:",
+            "options": [
+              "μόνο τη θερμοκρασία",
+              "μόνο την πυκνότητα πληθυσμού",
+              "το φυσικό και το ανθρωπογενές περιβάλλον",
+              "μόνο τα πολιτεύματα"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          },
+          {
+            "prompt": "Οι θεματικοί χάρτες παρουσιάζουν:",
+            "options": [
+              "την κατανομή ενός φαινομένου στον χώρο",
+              "μόνο τα βουνά",
+              "μόνο τα κράτη της Ευρώπης",
+              "μόνο τα λιμάνια"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          },
+          {
+            "prompt": "Η Ευρώπη βρίσκεται:",
+            "options": [
+              "κυρίως στο βόρειο ημισφαίριο",
+              "κυρίως στο νότιο ημισφαίριο",
+              "γύρω από τον Ισημερινό",
+              "μόνο στην πολική ζώνη"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          },
+          {
+            "prompt": "Η σχετική θέση της Ευρώπης δείχνει ότι η ήπειρος βρίσκεται:",
+            "options": [
+              "κοντά στον Ατλαντικό, στην Ασία και σχετικά κοντά στην Αφρική",
+              "απομονωμένη στον Ειρηνικό Ωκεανό",
+              "αποκλειστικά στην τροπική ζώνη",
+              "στο κέντρο της Ανταρκτικής"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          },
+          {
+            "prompt": "Η θέση της Ευρώπης ως προς τον Ισημερινό και τον Βόρειο Πόλο βοηθά να συμπεράνουμε ότι το κλίμα της είναι κυρίως:",
+            "options": [
+              "τροπικό",
+              "εύκρατο",
+              "ερημικό",
+              "ισημερινό"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          },
+          {
+            "prompt": "Για τη μελέτη της θέσης της Ευρώπης στον κόσμο χρησιμοποιούμε:",
+            "options": [
+              "μόνο πολιτικούς χάρτες",
+              "μόνο γεωμορφολογικούς χάρτες",
+              "γενικούς και θεματικούς χάρτες",
+              "μόνο αεροφωτογραφίες"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          },
+          {
+            "prompt": "Ένα βασικό συμπέρασμα από τη μελέτη χαρτών είναι ότι η Ευρώπη:",
+            "options": [
+              "είναι ανεξάρτητη από τις άλλες ηπείρους",
+              "σχετίζεται στενά με την Ασία, την Αφρική και τον Ατλαντικό",
+              "βρίσκεται νότια της Αφρικής",
+              "δεν έχει σαφή σχέση με άλλους χώρους"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L3",
+            "sectionKey": "L3_S1",
+            "category": "Μελετώντας με χάρτες τη θέση της Ευρώπης στον κόσμο"
+          }
+        ]
+      }
+    }
+  },
+  "L4": {
+    "title": "Μάθημα 4 • Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης",
+    "short": "Μάθημα 4",
+    "sections": {
+      "L4_S1": {
+        "title": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Σύμφωνα με το μάθημα, η Ευρώπη μπορεί να θεωρηθεί:",
+            "options": [
+              "νησί του Ατλαντικού",
+              "μεγάλη χερσόνησος της Ασίας",
+              "απομονωμένη ήπειρος χωρίς συνδέσεις",
+              "τμήμα της Αφρικής"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          },
+          {
+            "prompt": "Ο πλούσιος οριζόντιος διαμελισμός της Ευρώπης φαίνεται από τις πολλές:",
+            "options": [
+              "ερήμους και λίμνες",
+              "χερσονήσους, κόλπους και νησιά",
+              "τροπικές ζούγκλες",
+              "ενεργές ηφαιστειακές ζώνες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          },
+          {
+            "prompt": "Ποιοι δύο ωκεανοί βρέχουν την Ευρώπη;",
+            "options": [
+              "Ατλαντικός και Αρκτικός",
+              "Ειρηνικός και Ινδικός",
+              "Αρκτικός και Ινδικός",
+              "Ατλαντικός και Ειρηνικός"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          },
+          {
+            "prompt": "Στην ανατολική Ευρώπη κυριαρχεί:",
+            "options": [
+              "μια μεγάλη πεδιάδα",
+              "ένα συνεχές οροπέδιο",
+              "μόνο νησιωτικός χώρος",
+              "ένα ηφαιστειακό τόξο"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          },
+          {
+            "prompt": "Στη νότια Ευρώπη μεγάλο τμήμα του εδάφους καταλαμβάνουν:",
+            "options": [
+              "οι έρημοι",
+              "οι ψηλές οροσειρές",
+              "οι μεγάλες παγετώδεις πεδιάδες",
+              "οι τροπικές ζώνες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          },
+          {
+            "prompt": "Στην κεντρική Ευρώπη κυριαρχούν κυρίως:",
+            "options": [
+              "σχετικά χαμηλά υψώματα",
+              "μόνο ενεργά ηφαίστεια",
+              "μόνο παγετώνες",
+              "μόνο κλειστές θάλασσες"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          },
+          {
+            "prompt": "Στη δυτική Ευρώπη εκτείνεται:",
+            "options": [
+              "μια στενόμακρη πεδιάδα",
+              "η μεγαλύτερη έρημος της ηπείρου",
+              "ένα πολικό οροπέδιο",
+              "το βαθύτερο φαράγγι του κόσμου"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          },
+          {
+            "prompt": "Το φυσικό περιβάλλον της Ευρώπης μελετάται καλύτερα με:",
+            "options": [
+              "γενικούς και θεματικούς χάρτες",
+              "μόνο απογραφές πληθυσμού",
+              "μόνο πίνακες ιστορίας",
+              "μόνο οικονομικά διαγράμματα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L4",
+            "sectionKey": "L4_S1",
+            "category": "Μελετώντας με χάρτες το φυσικό περιβάλλον της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L5": {
+    "title": "Μάθημα 5 • Μελετώντας με χάρτες τους κατοίκους της Ευρώπης",
+    "short": "Μάθημα 5",
+    "sections": {
+      "L5_S1": {
+        "title": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Στη μελέτη των Ευρωπαίων και των δραστηριοτήτων τους οι χάρτες αποτελούν:",
+            "options": [
+              "άχρηστο εργαλείο",
+              "πολύ αξιόλογο και χρήσιμο εργαλείο",
+              "μόνο διακοσμητικό στοιχείο",
+              "μέσο μελέτης μόνο του καιρού"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          },
+          {
+            "prompt": "Από τη μελέτη χαρτών διαπιστώνουμε ότι η Ευρώπη είναι:",
+            "options": [
+              "αραιοκατοικημένη ήπειρος",
+              "πυκνοκατοικημένη ήπειρος",
+              "ακατοίκητη ήπειρος",
+              "ήπειρος χωρίς μεγάλες πόλεις"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          },
+          {
+            "prompt": "Οι κάτοικοι της Ευρώπης, σύμφωνα με το βιβλίο, απολαμβάνουν:",
+            "options": [
+              "πολύ χαμηλό επίπεδο ζωής",
+              "ικανοποιητικό επίπεδο ζωής",
+              "μόνο αγροτικό τρόπο ζωής",
+              "ελάχιστη πρόσβαση σε υπηρεσίες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          },
+          {
+            "prompt": "Παρά τη μικρή έκταση της Ευρώπης, σε αυτήν υπάρχει:",
+            "options": [
+              "μικρός αριθμός κρατών",
+              "μεγάλος αριθμός κρατών",
+              "μόνο ένα κράτος",
+              "μόνο νησιωτικά κράτη"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          },
+          {
+            "prompt": "Η θάλασσα είναι σημαντικός παράγοντας στη ζωή των Ευρωπαίων, επειδή:",
+            "options": [
+              "όλα τα κράτη είναι νησιωτικά",
+              "ελάχιστα κράτη δεν βρέχονται από αυτήν",
+              "όλα τα κράτη βρίσκονται σε υψίπεδα",
+              "δεν υπάρχουν ποτάμια"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          },
+          {
+            "prompt": "Το περιβάλλον στην Ευρώπη έχει αλλάξει πολύ από τον άνθρωπο, επειδή κυριαρχούν:",
+            "options": [
+              "τα τροπικά δάση",
+              "οι πόλεις, τα τεχνικά έργα και η βιομηχανική δραστηριότητα",
+              "οι έρημοι",
+              "οι κτηνοτροφικές νομαδικές ομάδες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          },
+          {
+            "prompt": "Οι πληροφορίες που δίνουν οι χάρτες για την Ευρώπη μπορεί να είναι:",
+            "options": [
+              "μόνο πολύ γενικές",
+              "μόνο πολύ εξειδικευμένες",
+              "από πολύ γενικές έως πολύ εξειδικευμένες",
+              "μόνο ιστορικές"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          },
+          {
+            "prompt": "Η χρήση χαρτών μπορεί να συμβάλει:",
+            "options": [
+              "στη διαμόρφωση επιλογών και στη λήψη αποφάσεων",
+              "μόνο στη μέτρηση βροχής",
+              "μόνο στη γεωλογική χρονολόγηση",
+              "στην κατάργηση των κρατών"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L5",
+            "sectionKey": "L5_S1",
+            "category": "Μελετώντας με χάρτες τους κατοίκους της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L6": {
+    "title": "Μάθημα 6 • Η γεωλογική ιστορία της Ευρώπης και η ορογένεση",
+    "short": "Μάθημα 6",
+    "sections": {
+      "L6_S1": {
+        "title": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η ηλικία της Γης είναι περίπου:",
+            "options": [
+              "460 χιλιάδες χρόνια",
+              "4,6 εκατομμύρια χρόνια",
+              "4,6 δισεκατομμύρια χρόνια",
+              "46 δισεκατομμύρια χρόνια"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          },
+          {
+            "prompt": "Οι βασικές υποδιαιρέσεις του γεωλογικού χρόνου, από τις μεγαλύτερες προς τις μικρότερες, είναι:",
+            "options": [
+              "αιώνες - περίοδοι - εποχές",
+              "εποχές - αιώνες - περίοδοι",
+              "περίοδοι - ώρες - αιώνες",
+              "αιώνες - λεπτά - εποχές"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          },
+          {
+            "prompt": "Ο Παλαιοζωικός Αιώνας χαρακτηρίζεται από τα απολιθώματα:",
+            "options": [
+              "των δεινοσαύρων",
+              "των θηλαστικών",
+              "των ασπονδύλων",
+              "των ανθρώπων"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          },
+          {
+            "prompt": "Ο Μεσοζωικός Αιώνας χαρακτηρίζεται από τα απολιθώματα:",
+            "options": [
+              "των δεινοσαύρων",
+              "των ασπονδύλων",
+              "των σύγχρονων φυτών",
+              "των πρώτων γεωργών"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          },
+          {
+            "prompt": "Ο Καινοζωικός Αιώνας χαρακτηρίζεται από:",
+            "options": [
+              "τα θηλαστικά και τα σύγχρονα φυτά",
+              "τους δεινόσαυρους",
+              "τα πρώτα ψάρια",
+              "μόνο τα έντομα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          },
+          {
+            "prompt": "Σήμερα βρισκόμαστε:",
+            "options": [
+              "στον Παλαιοζωικό Αιώνα",
+              "στον Μεσοζωικό Αιώνα",
+              "στον Καινοζωικό Αιώνα",
+              "στο Προκάμβριο"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          },
+          {
+            "prompt": "Η κίνηση των λιθοσφαιρικών πλακών ευθύνεται για:",
+            "options": [
+              "τη δημιουργία βουνών, σεισμών και ηφαιστείων",
+              "τη δημιουργία μόνο πεδιάδων",
+              "μόνο τη βροχόπτωση",
+              "μόνο τη βλάστηση"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          },
+          {
+            "prompt": "Τα βουνά της νότιας Ευρώπης σχηματίστηκαν κυρίως κατά:",
+            "options": [
+              "την Καληδόνια Πτύχωση",
+              "την Ερκύνια ή Βαρίσκια Πτύχωση",
+              "την Αλπική Πτύχωση",
+              "την Τεταρτογενή Περίοδο"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L6",
+            "sectionKey": "L6_S1",
+            "category": "Η γεωλογική ιστορία της Ευρώπης και η ορογένεση"
+          }
+        ]
+      }
+    }
+  },
+  "L7": {
+    "title": "Μάθημα 7 • Η διαμόρφωση του ανάγλυφου στην Ευρώπη",
+    "short": "Μάθημα 7",
+    "sections": {
+      "L7_S1": {
+        "title": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Οι ενδογενείς δυνάμεις κυρίως:",
+            "options": [
+              "διαβρώνουν τα βουνά",
+              "δημιουργούν τα βουνά",
+              "δημιουργούν λίμνες από βροχή",
+              "εξαφανίζουν όλες τις πεδιάδες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          },
+          {
+            "prompt": "Οι εξωγενείς δυνάμεις, όπως το νερό και ο άνεμος, κυρίως:",
+            "options": [
+              "ανυψώνουν τις λιθοσφαιρικές πλάκες",
+              "κατατρώγουν και αλλάζουν το ανάγλυφο",
+              "δημιουργούν σεισμούς",
+              "σταματούν την κίνηση των πλακών"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          },
+          {
+            "prompt": "Η Ευρώπη σχηματίστηκε:",
+            "options": [
+              "σε μία μόνο γεωλογική περίοδο",
+              "κατά τμήματα και σε διαφορετικά χρονικά διαστήματα",
+              "μόνο κατά τον Καινοζωικό Αιώνα",
+              "μόνο μετά τον άνθρωπο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          },
+          {
+            "prompt": "Η Αρχαιοευρώπη περιλαμβάνει κυρίως:",
+            "options": [
+              "τη ρωσική πεδιάδα και πεδινά τμήματα της Σκανδιναβίας",
+              "τις Άλπεις και τα Καρπάθια",
+              "μόνο την Ιβηρική Χερσόνησο",
+              "μόνο την Ιταλία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          },
+          {
+            "prompt": "Τα νορβηγικά φιόρδ συνδέονται κυρίως με:",
+            "options": [
+              "ηφαιστειακές εκρήξεις",
+              "τη δράση των παγετώνων",
+              "την αποξήρανση λιμνών",
+              "τη διάνοιξη διωρύγων"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          },
+          {
+            "prompt": "Χαρακτηριστικό της Μεσοευρώπης είναι:",
+            "options": [
+              "οι πολύ ψηλές νέες οροσειρές",
+              "η Ερκύνια ή Βαρίσκια Πτύχωση και η Μεσέτα",
+              "η πλήρης έλλειψη πεδιάδων",
+              "ο αποκλειστικά πολικός χαρακτήρας"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          },
+          {
+            "prompt": "Η Νεοευρώπη περιλαμβάνει:",
+            "options": [
+              "τον ευρωπαϊκό νότο",
+              "μόνο τη ρωσική πεδιάδα",
+              "τη βόρεια Σκανδιναβία",
+              "μόνο τη Φινλανδία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          },
+          {
+            "prompt": "Στη νότια Ευρώπη δεν υπάρχουν μεγάλες πεδιάδες κυρίως επειδή:",
+            "options": [
+              "η περιοχή παγώνει συνεχώς",
+              "τα βουνά είναι νέα και δεν έχουν διαβρωθεί αρκετά",
+              "λείπουν τα ποτάμια",
+              "κυριαρχούν οι έρημοι"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L7",
+            "sectionKey": "L7_S1",
+            "category": "Η διαμόρφωση του ανάγλυφου στην Ευρώπη"
+          }
+        ]
+      }
+    }
+  },
+  "L8": {
+    "title": "Μάθημα 8 • Η γεωλογική ιστορία της Ελλάδας",
+    "short": "Μάθημα 8",
+    "sections": {
+      "L8_S1": {
+        "title": "Η γεωλογική ιστορία της Ελλάδας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η σημερινή μορφή του ελληνικού χώρου είναι αποτέλεσμα κυρίως της σύγκρουσης:",
+            "options": [
+              "της αμερικανικής με την αφρικανική πλάκα",
+              "της αφρικανικής με την ευρασιατική πλάκα",
+              "της ινδικής με την αυστραλιανή πλάκα",
+              "της σιβηρικής με την αραβική πλάκα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          },
+          {
+            "prompt": "Στο άκρο της ευρασιατικής πλάκας σχηματίζονται στην περιοχή μας οι μικροπλάκες:",
+            "options": [
+              "του Αιγαίου, της Ανατολίας και της Απουλίας",
+              "της Κρήτης, της Κύπρου και της Μάλτας",
+              "του Νείλου, του Δούναβη και του Βόλγα",
+              "της Πίνδου, της Ροδόπης και του Ολύμπου"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          },
+          {
+            "prompt": "Απομεινάρι της Τηθύος Θάλασσας είναι σήμερα:",
+            "options": [
+              "ο Ατλαντικός Ωκεανός",
+              "η Μεσόγειος Θάλασσα",
+              "η Βαλτική Θάλασσα",
+              "η Κασπία λίμνη"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          },
+          {
+            "prompt": "Με την Αλπική Ορογένεση τα ιζήματα της Τηθύος:",
+            "options": [
+              "διαλύθηκαν",
+              "πτυχώθηκαν και ανυψώθηκαν",
+              "πάγωσαν οριστικά",
+              "έγιναν μόνο πεδιάδες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          },
+          {
+            "prompt": "Η Πίνδος δημιουργήθηκε περίπου πριν από:",
+            "options": [
+              "3,5 εκατομμύρια χρόνια",
+              "35 εκατομμύρια χρόνια",
+              "350 εκατομμύρια χρόνια",
+              "570 εκατομμύρια χρόνια"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          },
+          {
+            "prompt": "Η Αιγηίδα ήταν:",
+            "options": [
+              "ένα αρχαίο ενιαίο τμήμα ξηράς στον ελληνικό χώρο",
+              "μια λίμνη της Μακεδονίας",
+              "ο αρχαίος Δούναβης",
+              "μια οροσειρά της Ροδόπης"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          },
+          {
+            "prompt": "Τα νησιωτικά συμπλέγματα του Αιγαίου σχηματίστηκαν από:",
+            "options": [
+              "τις ψηλότερες κορυφές της Αιγηίδας",
+              "τεχνητές επιχώσεις",
+              "ποτάμιες αποθέσεις του Νείλου",
+              "παγετώνες της Σκανδιναβίας"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          },
+          {
+            "prompt": "Το ελληνικό ηφαιστειακό τόξο περιλαμβάνει ηφαίστεια όπως:",
+            "options": [
+              "Μέθανα, Μήλος, Θήρα, Νίσυρος",
+              "Όλυμπος, Ταΰγετος, Ροδόπη, Σμόλικας",
+              "Βόλγας, Δούναβης, Έβρος, Νέστος",
+              "Γιβραλτάρ, Σουέζ, Βόσπορος, Ελλήσποντος"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L8",
+            "sectionKey": "L8_S1",
+            "category": "Η γεωλογική ιστορία της Ελλάδας"
+          }
+        ]
+      }
+    }
+  },
+  "L9": {
+    "title": "Μάθημα 9 • Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα",
+    "short": "Μάθημα 9",
+    "sections": {
+      "L9_S1": {
+        "title": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Οι σεισμοί και τα ηφαίστεια έχουν:",
+            "options": [
+              "εντελώς διαφορετικά αίτια",
+              "κοινά αίτια δημιουργίας",
+              "μόνο ανθρωπογενή αίτια",
+              "μόνο κλιματικά αίτια"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          },
+          {
+            "prompt": "Σεισμοί και ηφαίστεια εμφανίζονται κυρίως:",
+            "options": [
+              "σε τεκτονικά ενεργές ζώνες",
+              "μόνο στις πεδιάδες",
+              "μόνο στις λίμνες",
+              "μόνο στα δάση"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          },
+          {
+            "prompt": "Στην Ευρώπη η σεισμική και η ηφαιστειακή δράση εντοπίζονται κυρίως κατά μήκος:",
+            "options": [
+              "της Αλπικής Πτύχωσης και της μεσοωκεάνιας ράχης του Ατλαντικού",
+              "της ρωσικής πεδιάδας",
+              "της βορειοευρωπαϊκής πεδιάδας",
+              "του Δούναβη"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          },
+          {
+            "prompt": "Η πλέον ηφαιστειογενής χώρα της Ευρώπης είναι:",
+            "options": [
+              "η Ισπανία",
+              "η Ισλανδία",
+              "η Πολωνία",
+              "η Φινλανδία"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          },
+          {
+            "prompt": "Η Ελλάδα είναι:",
+            "options": [
+              "από τις λιγότερο σεισμικές χώρες της Ευρώπης",
+              "η πρώτη σε σεισμικότητα χώρα στη Μεσόγειο και στην Ευρώπη",
+              "μόνο ηφαιστειακή χώρα χωρίς σεισμούς",
+              "χώρα χωρίς τεκτονική δράση"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          },
+          {
+            "prompt": "Το ότι η Ελλάδα βρίσκεται κοντά στο όριο σύγκλισης της αφρικανικής και της ευρασιατικής πλάκας έχει ως συνέπεια:",
+            "options": [
+              "να μην έχει καθόλου σεισμούς",
+              "να έχει σχεδόν καθημερινά σεισμούς μικρού ή μεγάλου μεγέθους",
+              "να έχει μόνο λίμνες",
+              "να έχει μόνο παγετώνες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          },
+          {
+            "prompt": "Οι περισσότεροι σεισμοί στην Ελλάδα συμβαίνουν:",
+            "options": [
+              "κάτω από τη θάλασσα",
+              "μόνο στον Όλυμπο",
+              "μόνο στη Θεσσαλία",
+              "μόνο στην Αττική"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          },
+          {
+            "prompt": "Το ηφαιστειακό τόξο του Αιγαίου περιλαμβάνει, μεταξύ άλλων:",
+            "options": [
+              "τη Σαντορίνη και τη Νίσυρο",
+              "τη Ροδόπη και τον Καύκασο",
+              "τα Ουράλια και τα Καρπάθια",
+              "τη Βαλτική και τη Βόρεια Θάλασσα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L9",
+            "sectionKey": "L9_S1",
+            "category": "Σεισμική και ηφαιστειακή δράση στην Ευρώπη και στην Ελλάδα"
+          }
+        ]
+      }
+    }
+  },
+  "L10": {
+    "title": "Μάθημα 10 • Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας",
+    "short": "Μάθημα 10",
+    "sections": {
+      "L10_S1": {
+        "title": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Οι σεισμοί και οι ηφαιστειακές εκρήξεις είναι φυσικά φαινόμενα με σοβαρές επιπτώσεις:",
+            "options": [
+              "μόνο στη γεωργία",
+              "στις ανθρώπινες ζωές και στην οικονομία",
+              "μόνο στη γλώσσα",
+              "μόνο στον τουρισμό"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          },
+          {
+            "prompt": "Στην Ευρώπη οι οικονομικές συνέπειες των σεισμών είναι μεγάλες, επειδή:",
+            "options": [
+              "η ήπειρος είναι ακατοίκητη",
+              "αναπτύσσονται εκεί σημαντικές οικονομικές δραστηριότητες",
+              "λείπουν τα ποτάμια",
+              "όλα τα κράτη είναι φτωχά"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          },
+          {
+            "prompt": "Στη χώρα μας οι σεισμοί κοστίζουν κατά μέσο όρο κάθε χρόνο περίπου:",
+            "options": [
+              "ένα εκατομμύριο ευρώ",
+              "ένα δισεκατομμύριο ευρώ",
+              "δέκα δισεκατομμύρια ευρώ",
+              "εκατό χιλιάδες ευρώ"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          },
+          {
+            "prompt": "Ο αριθμός των ανθρώπινων θυμάτων στην Ελλάδα είναι σχετικά μικρός σε σχέση με την έντονη σεισμικότητα, επειδή:",
+            "options": [
+              "οι σεισμοί γίνονται κυρίως στη θάλασσα",
+              "δεν υπάρχουν πόλεις",
+              "όλοι οι σεισμοί είναι μικροσκοπικοί",
+              "η χώρα δεν έχει ακτές"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          },
+          {
+            "prompt": "Η έκρηξη που συντάραξε όλη την ανατολική Μεσόγειο ήταν του ηφαιστείου:",
+            "options": [
+              "της Αίτνας",
+              "της Σαντορίνης",
+              "του Στρόμπολι",
+              "του Χέκλα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          },
+          {
+            "prompt": "Η έκρηξη του Βεζούβιου το 79 μ.Χ. άφησε θαμμένες στην ηφαιστειακή στάχτη πόλεις όπως:",
+            "options": [
+              "η Αθήνα",
+              "η Ρώμη",
+              "η Πομπηία",
+              "η Μασσαλία"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          },
+          {
+            "prompt": "Τα ηφαίστεια μπορούν να αποτελέσουν πηγή πλούτου μέσω:",
+            "options": [
+              "τουρισμού, γεωθερμίας και εύφορων εδαφών",
+              "μόνο σεισμών",
+              "μόνο κατολισθήσεων",
+              "μόνο παγετώνων"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          },
+          {
+            "prompt": "Σύμφωνα με το σύνθημα του Ο.Α.Σ.Π., απέναντι στους σεισμούς:",
+            "options": [
+              "η γνώση είναι προστασία",
+              "η άγνοια είναι ασφάλεια",
+              "μόνο ο φόβος βοηθά",
+              "καμιά προετοιμασία δεν χρειάζεται"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L10",
+            "sectionKey": "L10_S1",
+            "category": "Η επίδραση των σεισμών και των ηφαιστείων στη ζωή μας"
+          }
+        ]
+      }
+    }
+  },
+  "L11": {
+    "title": "Μάθημα 11 • Οι φυσιογραφικές περιοχές της Ευρώπης",
+    "short": "Μάθημα 11",
+    "sections": {
+      "L11_S1": {
+        "title": "Οι φυσιογραφικές περιοχές της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Φυσιογραφικές περιοχές ονομάζουμε:",
+            "options": [
+              "διοικητικές περιφέρειες με κοινά σύνορα",
+              "γεωγραφικές ενότητες με κοινά μορφολογικά χαρακτηριστικά και κοινό φυσικό πλούτο",
+              "μόνο τις ορεινές περιοχές",
+              "μόνο τα νησιά μιας χώρας"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          },
+          {
+            "prompt": "Η Ευρώπη μπορεί να χωριστεί σε μεγάλες φυσιογραφικές περιοχές:",
+            "options": [
+              "δύο",
+              "τρεις",
+              "πέντε",
+              "επτά"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          },
+          {
+            "prompt": "Μία από τις μεγάλες φυσιογραφικές περιοχές της Ευρώπης είναι:",
+            "options": [
+              "η Ευρώπη των υψηλών οροσειρών",
+              "η Ευρώπη των τροπικών δασών",
+              "η Ευρώπη των ερήμων",
+              "η Ευρώπη των μουσώνων"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          },
+          {
+            "prompt": "Οι υψηλές οροσειρές της νότιας Ευρώπης σχηματίστηκαν κατά:",
+            "options": [
+              "την Ερκύνια Πτύχωση",
+              "την Καληδόνια Πτύχωση",
+              "την Αλπική Πτύχωση",
+              "την παγετώδη περίοδο"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          },
+          {
+            "prompt": "Από τις υψηλές οροσειρές της Ευρώπης πηγάζουν:",
+            "options": [
+              "οι περισσότεροι μεγάλοι ποταμοί της Ευρώπης, εκτός από αυτούς της ρωσικής πεδιάδας",
+              "μόνο οι ποταμοί της Ισλανδίας",
+              "μόνο οι ποταμοί της Βρετανίας",
+              "κανένας σημαντικός ποταμός"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          },
+          {
+            "prompt": "Η Ευρώπη των πεδιάδων περιλαμβάνει:",
+            "options": [
+              "μόνο πυκνοκατοικημένες περιοχές με ήπιο κλίμα",
+              "μόνο αραιοκατοικημένες περιοχές",
+              "και πυκνοκατοικημένες εύκρατες και αραιοκατοικημένες ψυχρές περιοχές",
+              "μόνο περιοχές χωρίς ποτάμια"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          },
+          {
+            "prompt": "Στις πεδιάδες με κατάλληλες κλιματικές συνθήκες αναπτύσσονται κυρίως:",
+            "options": [
+              "η γεωργία και οι γεωργικές βιομηχανίες",
+              "μόνο ορειβατικά κέντρα",
+              "μόνο εξόρυξη πετρελαίου",
+              "μόνο ναυπηγεία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          },
+          {
+            "prompt": "Από τα φυσικά τοπία της Ευρώπης λείπουν:",
+            "options": [
+              "οι αμμώδεις τροπικές έρημοι και τα τροπικά δάση",
+              "οι πεδιάδες",
+              "οι παγετώνες",
+              "τα οροπέδια"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L11",
+            "sectionKey": "L11_S1",
+            "category": "Οι φυσιογραφικές περιοχές της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L12": {
+    "title": "Μάθημα 12 • Οι θάλασσες της Ευρώπης",
+    "short": "Μάθημα 12",
+    "sections": {
+      "L12_S1": {
+        "title": "Οι θάλασσες της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Οι θάλασσες της Ευρώπης διακρίνονται σε:",
+            "options": [
+              "αβαθείς και βαθιές",
+              "θερμές και ψυχρές",
+              "νησιωτικές και ηπειρωτικές",
+              "μόνο ανοικτές"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          },
+          {
+            "prompt": "Βαθιές θάλασσες της Ευρώπης θεωρούνται:",
+            "options": [
+              "η Μεσόγειος και η Μαύρη Θάλασσα",
+              "η Βαλτική και η Βόρεια Θάλασσα",
+              "η Λευκή και η Ιρλανδική",
+              "η Αδριατική και η Βαλτική"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          },
+          {
+            "prompt": "Η Βαλτική Θάλασσα είναι:",
+            "options": [
+              "βαθιά και θερμή",
+              "αβαθής και πριν από λίγες χιλιάδες χρόνια ήταν λίμνη",
+              "ωκεανός",
+              "ποταμός"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          },
+          {
+            "prompt": "Η Βόρεια και η Βαλτική Θάλασσα ενώνονται με τους πορθμούς:",
+            "options": [
+              "Γιβραλτάρ και Βοσπόρου",
+              "Σκάγερακ και Κάτεγατ",
+              "Σουέζ και Ελλησπόντου",
+              "Μάγχης και Μεσσήνης"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          },
+          {
+            "prompt": "Ο Αρκτικός Ωκεανός βρέχει:",
+            "options": [
+              "τις νότιες ακτές της Ευρώπης",
+              "τις βόρειες ακτές της Ευρώπης",
+              "μόνο την Ιβηρική Χερσόνησο",
+              "μόνο την Ιταλία"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          },
+          {
+            "prompt": "Η Λευκή Θάλασσα είναι:",
+            "options": [
+              "τεράστιος κόλπος ανάμεσα σε Φινλανδία και Ρωσία",
+              "η βαθύτερη θάλασσα της Μεσογείου",
+              "πορθμός της Δανίας",
+              "νησί της Ισλανδίας"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          },
+          {
+            "prompt": "Το μεγαλύτερο μέρος του ευρωπαϊκού νότου βρέχεται από:",
+            "options": [
+              "τη Βόρεια Θάλασσα",
+              "τη Βαλτική",
+              "τη Μεσόγειο Θάλασσα",
+              "τον Αρκτικό Ωκεανό"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          },
+          {
+            "prompt": "Η μεγάλη ακτογραμμή της Ευρώπης οφείλεται κυρίως:",
+            "options": [
+              "στο ακανόνιστο σχήμα της",
+              "στην έλλειψη νησιών",
+              "στην ύπαρξη μόνο πεδιάδων",
+              "στην απομόνωσή της"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L12",
+            "sectionKey": "L12_S1",
+            "category": "Οι θάλασσες της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L13": {
+    "title": "Μάθημα 13 • Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά",
+    "short": "Μάθημα 13",
+    "sections": {
+      "L13_S1": {
+        "title": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Βαλτική Θάλασσα είναι:",
+            "options": [
+              "κλειστή και αβαθής",
+              "ανοικτή και βαθιά",
+              "ωκεανός",
+              "εσωτερική λίμνη"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          },
+          {
+            "prompt": "Το μέσο βάθος της Βαλτικής Θάλασσας είναι περίπου:",
+            "options": [
+              "60 μέτρα",
+              "600 μέτρα",
+              "1.000 μέτρα",
+              "5.000 μέτρα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          },
+          {
+            "prompt": "Η αλατότητα της Βαλτικής είναι μικρή κυρίως επειδή:",
+            "options": [
+              "δεν δέχεται ποτάμια",
+              "επικοινωνεί πλατιά με τον Ατλαντικό",
+              "δέχεται πολλά ποτάμια, έχει περιορισμένη επικοινωνία με τον Ατλαντικό και βρίσκεται σε μεγάλο γεωγραφικό πλάτος",
+              "βρίσκεται στη Μεσόγειο"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          },
+          {
+            "prompt": "Η Βόρεια Θάλασσα είναι:",
+            "options": [
+              "κλειστή θάλασσα",
+              "ανοικτή αβαθής θάλασσα",
+              "ποταμός",
+              "λίμνη"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          },
+          {
+            "prompt": "Τα νερά της Βόρειας Θάλασσας είναι θερμότερα τον χειμώνα από της Βαλτικής λόγω:",
+            "options": [
+              "του ψυχρού ρεύματος της Σιβηρίας",
+              "του θερμού Ρεύματος του Κόλπου",
+              "της απόστασής της από κάθε ωκεανό",
+              "της έλλειψης ποταμών"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          },
+          {
+            "prompt": "Η Βόρεια Θάλασσα δεν παγώνει τον χειμώνα, ενώ:",
+            "options": [
+              "παγώνει ολόκληρη η Μεσόγειος",
+              "παγώνει η βόρεια Βαλτική",
+              "παγώνει ο Ατλαντικός Ωκεανός",
+              "παγώνει ο Δούναβης σε όλο το μήκος του"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          },
+          {
+            "prompt": "Στις ακτές της Βόρειας Θάλασσας βρίσκονται μεγάλα λιμάνια όπως:",
+            "options": [
+              "Ρότερνταμ και Αμβέρσα",
+              "Πάτρα και Βόλος",
+              "Μασσαλία και Πειραιάς",
+              "Αθήνα και Σόφια"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          },
+          {
+            "prompt": "Για τις βαλτικές χώρες και την Πολωνία η Βαλτική αποτελεί:",
+            "options": [
+              "τη μόνη διέξοδό τους στη θάλασσα",
+              "δευτερεύουσα λίμνη",
+              "ποτάμι της Σκανδιναβίας",
+              "οροσειρά"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L13",
+            "sectionKey": "L13_S1",
+            "category": "Βαλτική και Βόρεια θάλασσα: Δύο θάλασσες του Ευρωπαϊκού Βορρά"
+          }
+        ]
+      }
+    }
+  },
+  "L14": {
+    "title": "Μάθημα 14 • Η Μεσόγειος Θάλασσα",
+    "short": "Μάθημα 14",
+    "sections": {
+      "L14_S1": {
+        "title": "Η Μεσόγειος Θάλασσα",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Μεσόγειος βρίσκεται στο σημείο όπου συναντώνται:",
+            "options": [
+              "η Ευρώπη, η Ασία και η Αφρική",
+              "η Αμερική, η Ασία και η Ωκεανία",
+              "η Αφρική, η Ανταρκτική και η Ευρώπη",
+              "η Ασία, η Ανταρκτική και η Αμερική"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          },
+          {
+            "prompt": "Η Μεσόγειος είναι:",
+            "options": [
+              "εντελώς ανοικτή θάλασσα",
+              "σχεδόν κλειστή θάλασσα",
+              "εσωτερική λίμνη",
+              "ωκεανός"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          },
+          {
+            "prompt": "Η επικοινωνία της Μεσογείου με τον Ατλαντικό γίνεται μέσω:",
+            "options": [
+              "του Βοσπόρου",
+              "της Διώρυγας του Σουέζ",
+              "του Πορθμού του Γιβραλτάρ",
+              "των Στενών της Μάγχης"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          },
+          {
+            "prompt": "Το τρίτο άνοιγμα της Μεσογείου προς γειτονική θάλασσα που είναι ανθρώπινο έργο είναι:",
+            "options": [
+              "η Διώρυγα του Σουέζ",
+              "ο Βόσπορος",
+              "ο Ελλήσποντος",
+              "ο πορθμός της Μεσσήνης"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          },
+          {
+            "prompt": "Το μεγαλύτερο βάθος της Μεσογείου συναντάται:",
+            "options": [
+              "στο νότιο Ιόνιο Πέλαγος",
+              "στη Βαλτική",
+              "στη Βόρεια Θάλασσα",
+              "στον Βόσπορο"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          },
+          {
+            "prompt": "Το μεσογειακό κλίμα χαρακτηρίζεται από:",
+            "options": [
+              "ψυχρούς χειμώνες και βροχερά καλοκαίρια",
+              "ήπιους χειμώνες και ξηρά ζεστά καλοκαίρια",
+              "πολύμηνο παγετό",
+              "καθημερινές καταιγίδες όλο τον χρόνο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          },
+          {
+            "prompt": "Το πιο χαρακτηριστικό μεσογειακό φυτό είναι:",
+            "options": [
+              "η σημύδα",
+              "η ελιά",
+              "ο κέδρος του Λιβάνου",
+              "η τούνδρα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          },
+          {
+            "prompt": "Τα πέντε μεγαλύτερα μεσογειακά νησιά είναι κατά σειρά:",
+            "options": [
+              "Σικελία, Σαρδηνία, Κύπρος, Κορσική, Κρήτη",
+              "Κρήτη, Ρόδος, Σικελία, Κύπρος, Μάλτα",
+              "Σαρδηνία, Κρήτη, Κορσική, Κύπρος, Σικελία",
+              "Σικελία, Κρήτη, Εύβοια, Κύπρος, Ρόδος"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L14",
+            "sectionKey": "L14_S1",
+            "category": "Η Μεσόγειος Θάλασσα"
+          }
+        ]
+      }
+    }
+  },
+  "L15": {
+    "title": "Μάθημα 15 • Οι άνθρωποι στη Μεσόγειο",
+    "short": "Μάθημα 15",
+    "sections": {
+      "L15_S1": {
+        "title": "Οι άνθρωποι στη Μεσόγειο",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Μεσόγειος θεωρείται σπουδαιότατη για την ανθρώπινη ιστορία επειδή:",
+            "options": [
+              "είναι η μεγαλύτερη θάλασσα της Γης",
+              "βρίσκεται στο σταυροδρόμι τριών ηπείρων και αναπτύχθηκαν γύρω της σπουδαίοι πολιτισμοί",
+              "είναι παγωμένη",
+              "δεν έχει παράλια"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          },
+          {
+            "prompt": "Στις μεσογειακές ακτές κατοικούν περισσότεροι από:",
+            "options": [
+              "20 εκατομμύρια άνθρωποι",
+              "50 εκατομμύρια άνθρωποι",
+              "200 εκατομμύρια άνθρωποι",
+              "2 δισεκατομμύρια άνθρωποι"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          },
+          {
+            "prompt": "Ο βορράς της Μεσογείου είναι γενικά:",
+            "options": [
+              "λιγότερο αναπτυγμένος από τον νότο",
+              "περισσότερο αναπτυγμένος από τον νότο",
+              "εντελώς ακατοίκητος",
+              "ίδιος οικονομικά με κάθε άλλη περιοχή"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          },
+          {
+            "prompt": "Σημαντικό οικονομικό πόρο για τους μεσογειακούς λαούς αποτελεί:",
+            "options": [
+              "μόνο η εξόρυξη χρυσού",
+              "ο τουρισμός",
+              "μόνο η φαλαινοθηρία",
+              "μόνο η βιομηχανία χάλυβα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          },
+          {
+            "prompt": "Δύο χαρακτηριστικές καλλιέργειες της Μεσογείου είναι:",
+            "options": [
+              "ελιά και αμπέλι",
+              "ρύζι και τσάι",
+              "κακάο και καουτσούκ",
+              "σημύδα και βρώμη"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          },
+          {
+            "prompt": "Ένα από τα βασικότερα χαρακτηριστικά της Μεσογείου είναι:",
+            "options": [
+              "οι θαλάσσιοι δρόμοι της",
+              "η πλήρης απομόνωσή της",
+              "η έλλειψη νησιών",
+              "η απουσία πολιτισμών"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          },
+          {
+            "prompt": "Η Μεσόγειος επιβαρύνεται περιβαλλοντικά από:",
+            "options": [
+              "βιομηχανικά, γεωργικά, τουριστικά και οικιστικά λύματα",
+              "μόνο από χιόνια",
+              "μόνο από ηφαίστεια",
+              "μόνο από ποτάμια"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          },
+          {
+            "prompt": "Η υπεραλίευση στη Μεσόγειο έχει ως αποτέλεσμα:",
+            "options": [
+              "την αύξηση όλων των ψαριών",
+              "τη δραματική μείωση των πληθυσμών ψαριών",
+              "τη δημιουργία νέων θαλασσών",
+              "την αύξηση της αλατότητας"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L15",
+            "sectionKey": "L15_S1",
+            "category": "Οι άνθρωποι στη Μεσόγειο"
+          }
+        ]
+      }
+    }
+  },
+  "L16": {
+    "title": "Μάθημα 16 • Τα βουνά και οι πεδιάδες της Ευρώπης",
+    "short": "Μάθημα 16",
+    "sections": {
+      "L16_S1": {
+        "title": "Τα βουνά και οι πεδιάδες της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Ευρώπη είναι ήπειρος κυρίως:",
+            "options": [
+              "ορεινή",
+              "πεδινή",
+              "ερημική",
+              "ηφαιστειακή"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          },
+          {
+            "prompt": "Κατά τα δύο τρίτα η Ευρώπη αποτελείται από:",
+            "options": [
+              "ορεινές εκτάσεις",
+              "πεδινές εκτάσεις",
+              "παγετώνες",
+              "λιμναίες λεκάνες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          },
+          {
+            "prompt": "Το μέσο υψόμετρο της Ευρώπης είναι περίπου:",
+            "options": [
+              "300 μέτρα",
+              "3.000 μέτρα",
+              "30 μέτρα",
+              "1.500 μέτρα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          },
+          {
+            "prompt": "Ο κύριος ορεινός όγκος της Ευρώπης είναι:",
+            "options": [
+              "τα Ουράλια",
+              "οι Άλπεις",
+              "η Πίνδος",
+              "ο Αίμος"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          },
+          {
+            "prompt": "Στη βόρεια και κεντροδυτική Ευρώπη κυριαρχούν:",
+            "options": [
+              "μέτρια σε ύψος και διαβρωμένα βουνά",
+              "μόνο έρημοι",
+              "πολύ ψηλά νέα βουνά",
+              "μόνο ηφαιστειακά νησιά"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          },
+          {
+            "prompt": "Στην κεντρική και ανατολική Ευρώπη κυριαρχούν:",
+            "options": [
+              "οι απέραντες πεδιάδες",
+              "οι απότομες ακτές",
+              "οι ερημιές",
+              "οι τροπικές ζώνες"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          },
+          {
+            "prompt": "Στη νότια Ευρώπη το τοπίο είναι:",
+            "options": [
+              "ήπιο και πεδινό",
+              "άγριο, με ορεινούς όγκους κοντά στη θάλασσα",
+              "εντελώς επίπεδο",
+              "παγετώδες σε όλη την έκταση"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          },
+          {
+            "prompt": "Το ψηλότερο βουνό της Ευρώπης, σύμφωνα με το μάθημα, είναι:",
+            "options": [
+              "ο Όλυμπος",
+              "ο Μοντ Μπλαν",
+              "ο Ελμπρούζ του Καυκάσου",
+              "ο Σμόλικας"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L16",
+            "sectionKey": "L16_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L18": {
+    "title": "Μάθημα 18 • Τα βουνά και οι πεδιάδες της Ελλάδας",
+    "short": "Μάθημα 18",
+    "sections": {
+      "L18_S1": {
+        "title": "Τα βουνά και οι πεδιάδες της Ελλάδας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Ελλάδα είναι χώρα:",
+            "options": [
+              "κυρίως πεδινή",
+              "κυρίως ορεινή",
+              "χωρίς οροσειρές",
+              "μόνο νησιωτική"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          },
+          {
+            "prompt": "Περίπου το ποσοστό της επιφάνειας της Ελλάδας που καταλαμβάνεται από βουνά είναι:",
+            "options": [
+              "20%",
+              "40%",
+              "60%",
+              "80%"
+            ],
+            "correctIndex": 3,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          },
+          {
+            "prompt": "Οι δύο μεγάλες οροσειρές που απλώνονται σχεδόν σε όλη τη χώρα είναι:",
+            "options": [
+              "Πίνδος και Ροδόπη",
+              "Όλυμπος και Ταΰγετος",
+              "Άλπεις και Καρπάθια",
+              "Αίμος και Καύκασος"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          },
+          {
+            "prompt": "Η Πίνδος θεωρείται:",
+            "options": [
+              "η ραχοκοκαλιά της ηπειρωτικής Ελλάδας",
+              "το χαμηλότερο βουνό της χώρας",
+              "νησιωτική οροσειρά του Αιγαίου",
+              "ο μεγαλύτερος ποταμός της Ελλάδας"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          },
+          {
+            "prompt": "Η οροσειρά της Πίνδου έχει γενική κατεύθυνση:",
+            "options": [
+              "Α-Δ",
+              "ΒΔ-ΝΑ",
+              "Β-Ν",
+              "ΝΔ-ΒΑ"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          },
+          {
+            "prompt": "Η ψηλότερη κορυφή της Πίνδου είναι:",
+            "options": [
+              "ο Όλυμπος",
+              "ο Σμόλικας",
+              "η Γκιώνα",
+              "ο Παρνασσός"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          },
+          {
+            "prompt": "Η Πίνδος λειτουργεί ως:",
+            "options": [
+              "κλιματικό όριο ανάμεσα σε δυτική και ανατολική Ελλάδα",
+              "ανοιχτή θαλάσσια λεκάνη",
+              "κύρια πεδιάδα της χώρας",
+              "σύνορο με τη Βουλγαρία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          },
+          {
+            "prompt": "Το ψηλότερο ελληνικό βουνό είναι:",
+            "options": [
+              "ο Σμόλικας",
+              "η Τύμφη",
+              "ο Όλυμπος",
+              "η Ροδόπη"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L18",
+            "sectionKey": "L18_S1",
+            "category": "Τα βουνά και οι πεδιάδες της Ελλάδας"
+          }
+        ]
+      }
+    }
+  },
+  "L19": {
+    "title": "Μάθημα 19 • Το κλίμα της Ευρώπης",
+    "short": "Μάθημα 19",
+    "sections": {
+      "L19_S1": {
+        "title": "Το κλίμα της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Βασικός παράγοντας διαμόρφωσης του κλίματος ενός τόπου είναι:",
+            "options": [
+              "το γεωγραφικό πλάτος",
+              "μόνο η γλώσσα",
+              "μόνο η θρησκεία",
+              "μόνο το πολίτευμα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          },
+          {
+            "prompt": "Η Ευρώπη βρίσκεται κυρίως:",
+            "options": [
+              "στην πολική ζώνη",
+              "στην εύκρατη ζώνη",
+              "στην τροπική ζώνη",
+              "στο νότιο ημισφαίριο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          },
+          {
+            "prompt": "Στην Ευρώπη καμία περιοχή δεν απέχει από τη θάλασσα πάνω από:",
+            "options": [
+              "100 χιλιόμετρα",
+              "500 χιλιόμετρα",
+              "1.000 χιλιόμετρα",
+              "2.500 χιλιόμετρα"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          },
+          {
+            "prompt": "Οι παραθαλάσσιες περιοχές της Ευρώπης έχουν συνήθως:",
+            "options": [
+              "πολύ βαρύ χειμώνα και καύσωνα το καλοκαίρι",
+              "ήπιους χειμώνες και δροσερά καλοκαίρια",
+              "μόνο πολικό κλίμα",
+              "μόνο ερημικό κλίμα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          },
+          {
+            "prompt": "Το ωκεάνιο κλίμα επικρατεί κυρίως:",
+            "options": [
+              "στη δυτική Ευρώπη",
+              "στη βόρεια Αφρική",
+              "στην ανατολική Ευρώπη μόνο",
+              "στην κορυφή του Ολύμπου"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          },
+          {
+            "prompt": "Το ηπειρωτικό κλίμα επικρατεί κυρίως:",
+            "options": [
+              "στη δυτική Ευρώπη",
+              "στην ανατολική και κεντρική Ευρώπη",
+              "μόνο στη Μεσόγειο",
+              "μόνο στην Ισλανδία"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          },
+          {
+            "prompt": "Το μεσογειακό κλίμα επικρατεί κυρίως:",
+            "options": [
+              "στη νότια Ευρώπη",
+              "στην Αρκτική",
+              "μόνο στη Σιβηρία",
+              "στο εσωτερικό της Γροιλανδίας"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          },
+          {
+            "prompt": "Βασικό ρόλο στο κλίμα της Ευρώπης παίζει:",
+            "options": [
+              "ένας συνδυασμός της επίδρασης του Ατλαντικού, της Σαχάρας και της Σιβηρίας",
+              "μόνο η Ανταρκτική",
+              "μόνο η Αυστραλία",
+              "μόνο ο Ειρηνικός Ωκεανός"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L19",
+            "sectionKey": "L19_S1",
+            "category": "Το κλίμα της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L20": {
+    "title": "Μάθημα 20 • Το κλίμα της Ελλάδας",
+    "short": "Μάθημα 20",
+    "sections": {
+      "L20_S1": {
+        "title": "Το κλίμα της Ελλάδας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Ελλάδα βρίσκεται:",
+            "options": [
+              "στην πολική ζώνη",
+              "στην εύκρατη ζώνη",
+              "στην τροπική ζώνη",
+              "εκτός κλιματικών ζωνών"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          },
+          {
+            "prompt": "Η Ελλάδα είναι δεύτερη στην Ευρώπη σε ηλιοφάνεια μετά:",
+            "options": [
+              "την Ιταλία",
+              "την Πορτογαλία",
+              "την Ισπανία",
+              "τη Μάλτα"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          },
+          {
+            "prompt": "Στην Ελλάδα καμία περιοχή δεν απέχει από τη θάλασσα πάνω από:",
+            "options": [
+              "150 χιλιόμετρα",
+              "500 χιλιόμετρα",
+              "1.000 χιλιόμετρα",
+              "50 χιλιόμετρα"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          },
+          {
+            "prompt": "Η Ελλάδα είναι η τρίτη πιο ορεινή χώρα της Ευρώπης, με περισσότερες από:",
+            "options": [
+              "10 κορυφές πάνω από 2.000 μ.",
+              "20 κορυφές πάνω από 2.000 μ.",
+              "40 κορυφές πάνω από 2.000 μ.",
+              "100 κορυφές πάνω από 3.000 μ."
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          },
+          {
+            "prompt": "Χαρακτηριστικός νοτιοδυτικός θερμός και ξηρός άνεμος το καλοκαίρι είναι:",
+            "options": [
+              "ο βαρδάρης",
+              "ο λίβας",
+              "ο φιν",
+              "ο μπάτης"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          },
+          {
+            "prompt": "Χαρακτηριστικός βόρειος άνεμος στην κεντρική Μακεδονία τον χειμώνα είναι:",
+            "options": [
+              "ο λίβας",
+              "ο βαρδάρης",
+              "ο νοτιάς",
+              "ο λεβάντες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          },
+          {
+            "prompt": "Τα μελτέμια πνέουν κυρίως:",
+            "options": [
+              "στο Ιόνιο από τα νοτιοδυτικά",
+              "στο Αιγαίο από τα βορειοανατολικά",
+              "στην Πίνδο από τα ανατολικά",
+              "στη Θράκη από τα νοτιοανατολικά"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          },
+          {
+            "prompt": "Το κλίμα της Ελλάδας είναι γενικά:",
+            "options": [
+              "πολικό",
+              "εύκρατο μεσογειακό",
+              "ερημικό",
+              "ωκεάνιο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L20",
+            "sectionKey": "L20_S1",
+            "category": "Το κλίμα της Ελλάδας"
+          }
+        ]
+      }
+    }
+  },
+  "L21": {
+    "title": "Μάθημα 21 • Τα ποτάμια και οι λίμνες της Ευρώπης",
+    "short": "Μάθημα 21",
+    "sections": {
+      "L21_S1": {
+        "title": "Τα ποτάμια και οι λίμνες της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η μορφή του υδρογραφικού δικτύου μιας περιοχής εξαρτάται από:",
+            "options": [
+              "τη μορφολογία, το κλίμα και την έκτασή της",
+              "μόνο τη γλώσσα",
+              "μόνο τη θρησκεία",
+              "μόνο τις βιομηχανίες"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          },
+          {
+            "prompt": "Τα περισσότερα ευρωπαϊκά ποτάμια έχουν:",
+            "options": [
+              "τεράστιο μήκος όπως της Ασίας",
+              "μέτριο ή μικρό μήκος",
+              "πάντα παρόμοια παροχή",
+              "πάντα τροπικό χαρακτήρα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          },
+          {
+            "prompt": "Μεγάλα σε μήκος ποτάμια βρίσκονται κυρίως:",
+            "options": [
+              "στη ρωσική πεδιάδα",
+              "στην Ιταλική Χερσόνησο",
+              "στην Ελλάδα",
+              "στην Ισλανδία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          },
+          {
+            "prompt": "Ο Δούναβης αποτελεί εξαίρεση, γιατί:",
+            "options": [
+              "είναι λίμνη",
+              "ξεκινά από το κέντρο της Ευρώπης και εκβάλλει στη Μαύρη Θάλασσα περνώντας από πολλά κράτη",
+              "βρίσκεται μόνο στη Ρωσία",
+              "ρέει προς τον Ατλαντικό"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          },
+          {
+            "prompt": "Τα ποτάμια της νότιας Ευρώπης είναι συνήθως:",
+            "options": [
+              "ήρεμα και με πολύ νερό όλο τον χρόνο",
+              "πιο ορμητικά και με λιγοστό νερό, κυρίως το καλοκαίρι",
+              "παγωμένα όλο τον χρόνο",
+              "μεγαλύτερα από του Βόλγα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          },
+          {
+            "prompt": "Στην κυρίως Ευρώπη τη ροή των νερών ρυθμίζουν κυρίως:",
+            "options": [
+              "οι Άλπεις",
+              "τα Πυρηναία μόνο",
+              "οι πόλεις",
+              "οι παραλίες"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          },
+          {
+            "prompt": "Τα ποτάμια των βόρειων περιοχών της Ευρώπης τον χειμώνα:",
+            "options": [
+              "δεν επηρεάζονται καθόλου",
+              "παγώνουν και μειώνεται η οικονομική τους σημασία",
+              "στερεύουν από τη ζέστη",
+              "γίνονται αλμυρά"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          },
+          {
+            "prompt": "Ο μεγαλύτερος ποταμός της Ευρώπης είναι:",
+            "options": [
+              "ο Δούναβης",
+              "ο Βόλγας",
+              "ο Ρήνος",
+              "ο Έβρος"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L21",
+            "sectionKey": "L21_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L22": {
+    "title": "Μάθημα 22 • Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων",
+    "short": "Μάθημα 22",
+    "sections": {
+      "L22_S1": {
+        "title": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Τα ποτάμια και οι λίμνες της Ευρώπης αποτελούν:",
+            "options": [
+              "άχρηστο φυσικό στοιχείο",
+              "πολύτιμο φυσικό πόρο",
+              "μόνο τουριστικό τοπίο",
+              "μόνο φυσικό εμπόδιο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          },
+          {
+            "prompt": "Τα νερά των ποταμών και των λιμνών χρησιμεύουν, μεταξύ άλλων, για:",
+            "options": [
+              "ύδρευση και άρδευση",
+              "μόνο ψάρεμα",
+              "μόνο αθλητισμό",
+              "μόνο ναυπηγική"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          },
+          {
+            "prompt": "Πολλά μεγάλα ευρωπαϊκά αστικά κέντρα είναι χτισμένα:",
+            "options": [
+              "σε κορυφές οροσειρών",
+              "στις όχθες ποταμών ή λιμνών",
+              "σε ερήμους",
+              "μακριά από νερό"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          },
+          {
+            "prompt": "Για να είναι ένα ποτάμι πλωτό πρέπει να έχει:",
+            "options": [
+              "πολύ μικρή παροχή νερού",
+              "σημαντική παροχή νερού όλο τον χρόνο",
+              "πάντα πολικό κλίμα",
+              "μεγάλο υψόμετρο στις όχθες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          },
+          {
+            "prompt": "Ένα πλωτό ποτάμι δεν πρέπει να:",
+            "options": [
+              "εκβάλλει στη θάλασσα",
+              "παγώνει τον χειμώνα ή να έχει καταρράκτες στη διαδρομή του",
+              "διαρρέει πόλεις",
+              "συνδέεται με διώρυγες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          },
+          {
+            "prompt": "Σήμερα η ποταμοπλοΐα είναι ιδιαίτερα αναπτυγμένη:",
+            "options": [
+              "σε μεγάλο τμήμα της Ευρώπης",
+              "μόνο στην Ελλάδα",
+              "μόνο στην Ισλανδία",
+              "μόνο στην Ιβηρική"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          },
+          {
+            "prompt": "Ο Βόλγας και ο Δούναβης είναι:",
+            "options": [
+              "πλωτά σε όλο σχεδόν το μήκος τους",
+              "απλώς ορμητικοί χείμαρροι",
+              "ξηρά το καλοκαίρι",
+              "μόνο σύνορα κρατών"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          },
+          {
+            "prompt": "Οι ανθρώπινες δραστηριότητες που επιδρούν αρνητικά σε ποτάμια και λίμνες σχετίζονται με:",
+            "options": [
+              "ρύπανση από πόλεις, βιομηχανία και καλλιέργειες",
+              "μόνο χιονοπτώσεις",
+              "μόνο τη σελήνη",
+              "μόνο τα ψάρια"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L22",
+            "sectionKey": "L22_S1",
+            "category": "Τα ποτάμια και οι λίμνες στη ζωή των Ευρωπαίων"
+          }
+        ]
+      }
+    }
+  },
+  "L23": {
+    "title": "Μάθημα 23 • Τα ποτάμια και οι λίμνες της Ελλάδας",
+    "short": "Μάθημα 23",
+    "sections": {
+      "L23_S1": {
+        "title": "Τα ποτάμια και οι λίμνες της Ελλάδας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Ένα βασικό χαρακτηριστικό των ποταμών της Ελλάδας είναι ότι έχουν:",
+            "options": [
+              "πολύ μεγάλο μήκος",
+              "μικρό μήκος",
+              "μεγάλη σταθερή παροχή όλο τον χρόνο",
+              "πολικό χαρακτήρα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          },
+          {
+            "prompt": "Οι ελληνικοί ποταμοί έχουν εποχική ροή, δηλαδή:",
+            "options": [
+              "δεν έχουν ποτέ νερό",
+              "η παροχή τους μειώνεται πολύ το καλοκαίρι",
+              "είναι πλωτοί όλο τον χρόνο",
+              "παγώνουν όλοι τον χειμώνα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          },
+          {
+            "prompt": "Οι περισσότεροι ελληνικοί ποταμοί έχουν μικρή παροχή νερού κυρίως λόγω:",
+            "options": [
+              "του χαμηλού ύψους βροχής στη χώρα",
+              "της μεγάλης απόστασης από τη θάλασσα",
+              "της υπερβολικής αλατότητας",
+              "της έλλειψης βουνών"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          },
+          {
+            "prompt": "Οι ελληνικοί ποταμοί είναι ορμητικοί επειδή:",
+            "options": [
+              "η Ελλάδα είναι κυρίως πεδινή",
+              "το ανάγλυφο της χώρας είναι ορεινό",
+              "βρίσκονται σε τροπική ζώνη",
+              "είναι όλοι τεχνητοί"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          },
+          {
+            "prompt": "Οι τρεις μεγαλύτεροι ποταμοί της Ελλάδας πηγάζουν από:",
+            "options": [
+              "την οροσειρά της Ροδόπης",
+              "τον Όλυμπο",
+              "την οροσειρά της Πίνδου",
+              "τα νησιά του Αιγαίου"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          },
+          {
+            "prompt": "Ο μεγαλύτερος ποταμός της Ελλάδας σε μήκος είναι:",
+            "options": [
+              "ο Αχελώος",
+              "ο Πηνειός",
+              "ο Αλιάκμονας",
+              "ο Νέστος"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          },
+          {
+            "prompt": "Η μεγαλύτερη φυσική λίμνη της Ελλάδας είναι:",
+            "options": [
+              "η Βόλβη",
+              "η Βεγορίτιδα",
+              "η Τριχωνίδα",
+              "η Κορώνεια"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          },
+          {
+            "prompt": "Οι χείμαρροι που κατεβαίνουν με ορμή από τις πλαγιές μπορούν να προκαλέσουν:",
+            "options": [
+              "χειμαρρικό πρόβλημα και ερημοποίηση",
+              "μόνο αύξηση του τουρισμού",
+              "μόνο αλατότητα στις λίμνες",
+              "μόνο νέες θάλασσες"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L23",
+            "sectionKey": "L23_S1",
+            "category": "Τα ποτάμια και οι λίμνες της Ελλάδας"
+          }
+        ]
+      }
+    }
+  },
+  "L25": {
+    "title": "Μάθημα 25 • Η πολιτική διαίρεση της Ευρώπης",
+    "short": "Μάθημα 25",
+    "sections": {
+      "L25_S1": {
+        "title": "Η πολιτική διαίρεση της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Ευρώπη κατοικήθηκε:",
+            "options": [
+              "μόνο από τον 20ό αιώνα",
+              "από τα πανάρχαια χρόνια",
+              "μόνο μετά τη βιομηχανική επανάσταση",
+              "μόνο μετά το 1950"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          },
+          {
+            "prompt": "Σήμερα τα κράτη της Ευρώπης είναι:",
+            "options": [
+              "12",
+              "27",
+              "46",
+              "60"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          },
+          {
+            "prompt": "Η διαίρεση της Ευρώπης σε πολλά κράτη οφείλεται:",
+            "options": [
+              "μόνο σε κλιματικούς λόγους",
+              "σε γεωγραφικούς και ιστορικούς λόγους",
+              "μόνο σε θρησκευτικούς λόγους",
+              "μόνο σε σεισμούς"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          },
+          {
+            "prompt": "Οι μεγάλες εθνικές ομάδες στον ευρωπαϊκό χώρο είναι κυρίως:",
+            "options": [
+              "οι γερμανικές και οι σλαβικές",
+              "οι αφρικανικές και οι ασιατικές",
+              "οι πολικές και οι τροπικές",
+              "οι ωκεάνιες και οι αμερικανικές"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          },
+          {
+            "prompt": "Παράδειγμα ανάδελφου έθνους που αναφέρει το βιβλίο είναι:",
+            "options": [
+              "οι Γάλλοι",
+              "οι Έλληνες",
+              "οι Γερμανοί",
+              "οι Σλάβοι"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          },
+          {
+            "prompt": "Η κατάτμηση της Ευρώπης σε πολλά κράτη δημιούργησε προβλήματα:",
+            "options": [
+              "μόνο γλωσσικά",
+              "επικοινωνίας, μετακινήσεων και διαχείρισης πόρων",
+              "μόνο θρησκευτικά",
+              "μόνο σεισμικά"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          },
+          {
+            "prompt": "Μέρος των προβλημάτων της πολυδιάσπασης αντιμετωπίστηκε με:",
+            "options": [
+              "τη δημιουργία της Ευρωπαϊκής Ένωσης",
+              "την κατάργηση όλων των ποταμών",
+              "τη μείωση του πληθυσμού",
+              "τη μεταφορά κρατών σε άλλες ηπείρους"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          },
+          {
+            "prompt": "Γενικά τα ευρωπαϊκά κράτη χαρακτηρίζονται από:",
+            "options": [
+              "χαμηλή ανάπτυξη μεταφορών και επικοινωνιών",
+              "ανάπτυξη βιομηχανίας, εμπορίου και δικτύων μεταφορών",
+              "απουσία πόλεων",
+              "απουσία εκπαίδευσης"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L25",
+            "sectionKey": "L25_S1",
+            "category": "Η πολιτική διαίρεση της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L26": {
+    "title": "Μάθημα 26 • Η Ευρωπαϊκή Ένωση",
+    "short": "Μάθημα 26",
+    "sections": {
+      "L26_S1": {
+        "title": "Η Ευρωπαϊκή Ένωση",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η ανάγκη για ευρωπαϊκή ενοποίηση ενισχύθηκε ιδιαίτερα μετά:",
+            "options": [
+              "τον Α΄ Παγκόσμιο Πόλεμο μόνο",
+              "τον Β΄ Παγκόσμιο Πόλεμο",
+              "τη Γαλλική Επανάσταση",
+              "την Αναγέννηση"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          },
+          {
+            "prompt": "Η συνθήκη δημιουργίας της Ε.Ο.Κ. υπογράφηκε:",
+            "options": [
+              "στη Ρώμη το 1957",
+              "στο Παρίσι το 1945",
+              "στο Μάαστριχτ το 1975",
+              "στις Βρυξέλλες το 1981"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          },
+          {
+            "prompt": "Τα ιδρυτικά κράτη της Ε.Ο.Κ. ήταν:",
+            "options": [
+              "έξι",
+              "δέκα",
+              "δώδεκα",
+              "είκοσι επτά"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          },
+          {
+            "prompt": "Η Ε.Ο.Κ. μετονομάστηκε σε Ευρωπαϊκή Ένωση με τη Συνθήκη:",
+            "options": [
+              "της Ρώμης",
+              "του Μάαστριχτ",
+              "της Λισαβόνας",
+              "της Γενεύης"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          },
+          {
+            "prompt": "Η Ευρωπαϊκή Ένωση πρόσθεσε στην οικονομική συνεργασία και:",
+            "options": [
+              "την Πολιτική Ένωση και την Οικονομική-Νομισματική Ένωση",
+              "μόνο τη στρατιωτική ένωση",
+              "μόνο τον αθλητισμό",
+              "μόνο τη γεωργία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          },
+          {
+            "prompt": "Το 2007 η Ευρωπαϊκή Ένωση αριθμούσε:",
+            "options": [
+              "15 κράτη-μέλη",
+              "27 κράτη-μέλη",
+              "46 κράτη-μέλη",
+              "6 κράτη-μέλη"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          },
+          {
+            "prompt": "Για να ενταχθεί ένα κράτος στην Ε.Ε. πρέπει να πληροί, μεταξύ άλλων, τα:",
+            "options": [
+              "κριτήρια της Κοπεγχάγης",
+              "κριτήρια της Αθήνας",
+              "κριτήρια του ΟΗΕ",
+              "κριτήρια της UNESCO"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          },
+          {
+            "prompt": "Η Ελλάδα εντάχθηκε στην Ευρωπαϊκή Κοινότητα ως δέκατο μέλος από:",
+            "options": [
+              "1η Ιανουαρίου 1981",
+              "25 Μαρτίου 1957",
+              "8 Ιουνίου 1959",
+              "1η Μαΐου 2004"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L26",
+            "sectionKey": "L26_S1",
+            "category": "Η Ευρωπαϊκή Ένωση"
+          }
+        ]
+      }
+    }
+  },
+  "L27": {
+    "title": "Μάθημα 27 • Η σημασία της Ευρωπαϊκής Ένωσης",
+    "short": "Μάθημα 27",
+    "sections": {
+      "L27_S1": {
+        "title": "Η σημασία της Ευρωπαϊκής Ένωσης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Ευρωπαϊκή Ένωση ξεκίνησε το 1957 ως:",
+            "options": [
+              "πολιτιστικός οργανισμός",
+              "οικονομική ένωση έξι κρατών",
+              "στρατιωτική συμμαχία 27 κρατών",
+              "παγκόσμια κυβέρνηση"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          },
+          {
+            "prompt": "Ένα από τα βασικά επιτεύγματα της Ε.Ε. είναι:",
+            "options": [
+              "η απουσία πολεμικών συγκρούσεων ανάμεσα στα κράτη-μέλη της",
+              "η αύξηση των συνόρων",
+              "η κατάργηση της εκπαίδευσης",
+              "η απομόνωση των λαών"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          },
+          {
+            "prompt": "Στα κράτη-μέλη της Ε.Ε. θεωρούνται δεδομένα:",
+            "options": [
+              "η θανατική ποινή και η λογοκρισία",
+              "ο σεβασμός στα ανθρώπινα δικαιώματα και οι δημοκρατικοί θεσμοί",
+              "η απουσία εκλογών",
+              "η απαγόρευση μετακινήσεων"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          },
+          {
+            "prompt": "Στην Ε.Ε. άνθρωποι, εμπορεύματα, υπηρεσίες και χρήματα μπορούν να κυκλοφορούν:",
+            "options": [
+              "μόνο με ειδική άδεια ΟΗΕ",
+              "με μεγάλη ελευθερία",
+              "μόνο μέσα σε ένα κράτος",
+              "μόνο αεροπορικώς"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          },
+          {
+            "prompt": "Το ευρώ διευκολύνει:",
+            "options": [
+              "μόνο την ιστορική έρευνα",
+              "τις συναλλαγές πολιτών, το εμπόριο και τον τουρισμό",
+              "μόνο τη ναυτιλία",
+              "μόνο τη γεωργία"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          },
+          {
+            "prompt": "Τα πλουσιότερα κράτη της Ε.Ε. συνεισφέρουν οικονομικά στα φτωχότερα για:",
+            "options": [
+              "να σταματήσουν τα έργα υποδομής",
+              "ισορροπημένη οικονομική και κοινωνική ανάπτυξη",
+              "να καταργήσουν τα σχολεία",
+              "να περιορίσουν τις μεταφορές"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          },
+          {
+            "prompt": "Ένα από τα σημαντικά προβλήματα που αναφέρει το βιβλίο για την Ε.Ε. είναι:",
+            "options": [
+              "η έλλειψη κρατών-μελών",
+              "η ανεργία και η φτώχεια σε μέρος του πληθυσμού",
+              "η απουσία περιβάλλοντος",
+              "η έλλειψη ποταμών"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          },
+          {
+            "prompt": "Με την ένταξή της στην Ε.Ε. η Ελλάδα:",
+            "options": [
+              "απομονώθηκε διπλωματικά",
+              "ενίσχυσε τη διπλωματική και αμυντική της θέση και χρηματοδότησε βασικές υποδομές",
+              "έχασε όλα τα λιμάνια της",
+              "σταμάτησε να κατασκευάζει δρόμους"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L27",
+            "sectionKey": "L27_S1",
+            "category": "Η σημασία της Ευρωπαϊκής Ένωσης"
+          }
+        ]
+      }
+    }
+  },
+  "L28": {
+    "title": "Μάθημα 28 • Η διοικητική διαίρεση της Ελλάδας",
+    "short": "Μάθημα 28",
+    "sections": {
+      "L28_S1": {
+        "title": "Η διοικητική διαίρεση της Ελλάδας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Στη γεωγραφία περιφέρεια είναι:",
+            "options": [
+              "κάθε τυχαίο κομμάτι χώρου",
+              "τμήμα χώρου με σχετική ομοιομορφία, διαφοροποίηση από γειτονικές περιοχές και εσωτερική συνοχή",
+              "μόνο ένας δήμος",
+              "μόνο μια πρωτεύουσα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          },
+          {
+            "prompt": "Η διαίρεση της χώρας σε περιφέρειες βοηθά:",
+            "options": [
+              "μόνο τους τουρίστες",
+              "την επιστημονική μελέτη και τη διοίκησή της",
+              "μόνο τη γλωσσολογία",
+              "μόνο τη θρησκευτική οργάνωση"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          },
+          {
+            "prompt": "Παράδειγμα περιφέρειας με κοινά χαρακτηριστικά που αναφέρει το βιβλίο είναι:",
+            "options": [
+              "τα Ιόνια Νησιά",
+              "η Αυστραλία",
+              "η Ανταρκτική",
+              "η Ασία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          },
+          {
+            "prompt": "Στις Κυκλάδες σοβαρό διοικητικό ζήτημα είναι:",
+            "options": [
+              "η ατμοσφαιρική ρύπανση των βαριών βιομηχανιών",
+              "η τακτική ακτοπλοϊκή κάλυψη των νησιών",
+              "η κατασκευή φιόρδ",
+              "η έλλειψη ήλιου"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          },
+          {
+            "prompt": "Η Ελλάδα έχει διαιρεθεί για τη διοίκησή της σε:",
+            "options": [
+              "9 διοικητικές περιφέρειες",
+              "13 διοικητικές περιφέρειες",
+              "27 διοικητικές περιφέρειες",
+              "46 διοικητικές περιφέρειες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          },
+          {
+            "prompt": "Τα γεωγραφικά διαμερίσματα της Ελλάδας είναι:",
+            "options": [
+              "13",
+              "9",
+              "6",
+              "3"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          },
+          {
+            "prompt": "Τα όρια των γεωγραφικών διαμερισμάτων:",
+            "options": [
+              "συμπίπτουν πάντα με των διοικητικών περιφερειών",
+              "δεν συμπίπτουν πάντα με των διοικητικών περιφερειών",
+              "είναι ίδια με των νομών όλης της Ευρώπης",
+              "καταργήθηκαν πλήρως"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          },
+          {
+            "prompt": "Η Αττική, παρότι έχει μικρή έκταση, συγκεντρώνει:",
+            "options": [
+              "σχεδόν τους μισούς κατοίκους της χώρας",
+              "μόνο αγροτικό πληθυσμό",
+              "λιγότερο από το 5% του πληθυσμού",
+              "μόνο τουρισμό"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L28",
+            "sectionKey": "L28_S1",
+            "category": "Η διοικητική διαίρεση της Ελλάδας"
+          }
+        ]
+      }
+    }
+  },
+  "L29": {
+    "title": "Μάθημα 29 • Ο πληθυσμός της Ευρώπης",
+    "short": "Μάθημα 29",
+    "sections": {
+      "L29_S1": {
+        "title": "Ο πληθυσμός της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Στην Ευρώπη κατοικούν σήμερα περίπου:",
+            "options": [
+              "75 εκατομμύρια άνθρωποι",
+              "250 εκατομμύρια άνθρωποι",
+              "750 εκατομμύρια άνθρωποι",
+              "1,5 δισεκατομμύριο άνθρωποι"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          },
+          {
+            "prompt": "Η Ευρώπη είναι:",
+            "options": [
+              "η πιο πολυπληθής ήπειρος",
+              "η τρίτη πολυπληθέστερη ήπειρος",
+              "η λιγότερο πολυπληθής ήπειρος",
+              "ήπειρος χωρίς απογραφές"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          },
+          {
+            "prompt": "Η έκταση της Ευρώπης αποτελεί περίπου:",
+            "options": [
+              "7% της συνολικής επιφάνειας της ξηράς του πλανήτη",
+              "20% της ξηράς",
+              "50% της ξηράς",
+              "1% της ξηράς"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          },
+          {
+            "prompt": "Ο πληθυσμός της Ευρώπης αποτελεί περίπου:",
+            "options": [
+              "6% του παγκόσμιου πληθυσμού",
+              "12% του παγκόσμιου πληθυσμού",
+              "25% του παγκόσμιου πληθυσμού σήμερα",
+              "40% του παγκόσμιου πληθυσμού"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          },
+          {
+            "prompt": "Η πυκνότητα πληθυσμού της Ευρώπης είναι περίπου:",
+            "options": [
+              "18 κάτοικοι ανά τετρ. χλμ.",
+              "48 κάτοικοι ανά τετρ. χλμ.",
+              "78 κάτοικοι ανά τετρ. χλμ.",
+              "178 κάτοικοι ανά τετρ. χλμ."
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          },
+          {
+            "prompt": "Απογραφή ονομάζεται:",
+            "options": [
+              "η εκτίμηση του κλίματος",
+              "η έγκυρη καταγραφή του πληθυσμού μιας χώρας σε μια συγκεκριμένη χρονική στιγμή",
+              "η χαρτογράφηση βουνών",
+              "η μέτρηση παροχής ποταμών"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          },
+          {
+            "prompt": "Μέχρι τις αρχές του 19ου αιώνα η αύξηση του ευρωπαϊκού πληθυσμού ήταν:",
+            "options": [
+              "πολύ γρήγορη",
+              "αργή και συχνά ανακοπτόταν",
+              "ανύπαρκτη",
+              "ίδια με της Αφρικής"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          },
+          {
+            "prompt": "Μετά το 1970 ο ευρωπαϊκός πληθυσμός:",
+            "options": [
+              "μειώθηκε αμέσως παντού",
+              "αυξάνεται αλλά με πολύ αργούς ρυθμούς",
+              "διπλασιάζεται κάθε χρόνο",
+              "δεν αλλάζει ποτέ"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L29",
+            "sectionKey": "L29_S1",
+            "category": "Ο πληθυσμός της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L30": {
+    "title": "Μάθημα 30 • Τα χαρακτηριστικά του πληθυσμού της Ευρώπης",
+    "short": "Μάθημα 30",
+    "sections": {
+      "L30_S1": {
+        "title": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Ένα βασικό χαρακτηριστικό του ευρωπαϊκού πληθυσμού είναι:",
+            "options": [
+              "η πολύ μικρή μέση πυκνότητα σε σχέση με άλλες ηπείρους",
+              "η μεγάλη μέση πυκνότητα σε σχέση με άλλες ηπείρους",
+              "η έλλειψη πόλεων",
+              "η απουσία μεταναστών"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          },
+          {
+            "prompt": "Οι πιο πυκνοκατοικημένες περιοχές της Ευρώπης βρίσκονται κυρίως:",
+            "options": [
+              "γύρω από τη Βόρεια Θάλασσα",
+              "στην Ισλανδία",
+              "στη Σκανδιναβική τούνδρα",
+              "στις Άλπεις"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          },
+          {
+            "prompt": "Η μεγάλη πυκνότητα γύρω από τη Βόρεια Θάλασσα οφείλεται σε:",
+            "options": [
+              "γόνιμο έδαφος, ευνοϊκό κλίμα και ανεπτυγμένη βιομηχανία",
+              "μόνο στην έλλειψη ποταμών",
+              "μόνο στο πολικό κλίμα",
+              "μόνο στους παγετώνες"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          },
+          {
+            "prompt": "Ο βαθμός αστικοποίησης στο Ηνωμένο Βασίλειο και στη Γερμανία:",
+            "options": [
+              "είναι κάτω από 20%",
+              "ξεπερνά το 80%",
+              "είναι γύρω στο 10%",
+              "είναι μηδενικός"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          },
+          {
+            "prompt": "Το έντονο δημογραφικό πρόβλημα της Ευρώπης σχετίζεται με:",
+            "options": [
+              "υψηλή γεννητικότητα",
+              "χαμηλή γεννητικότητα και γήρανση του πληθυσμού",
+              "έλλειψη πόλεων",
+              "απουσία ιατρικής"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          },
+          {
+            "prompt": "Για την απλή αναπλήρωση του πληθυσμού μιας χώρας απαιτείται δείκτης γονιμότητας:",
+            "options": [
+              "1,0 παιδιά ανά γυναίκα",
+              "1,4 παιδιά ανά γυναίκα",
+              "2,1 παιδιά ανά γυναίκα",
+              "3,5 παιδιά ανά γυναίκα"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          },
+          {
+            "prompt": "Η Ευρώπη αποτελεί σήμερα:",
+            "options": [
+              "περιοχή από την οποία φεύγουν μόνο μετανάστες",
+              "κορυφαίο πόλο έλξης μεταναστών",
+              "ήπειρο κλειστή στη μετανάστευση",
+              "περιοχή χωρίς αλλογενή πληθυσμό"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          },
+          {
+            "prompt": "Η παρουσία μεταναστών σε μια χώρα με στασιμότητα ή μείωση πληθυσμού μπορεί να είναι:",
+            "options": [
+              "αρνητική μόνο",
+              "θετική και για την οικονομική ανάπτυξη",
+              "χωρίς καμία συνέπεια",
+              "μόνο πολιτισμικά επιζήμια"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L30",
+            "sectionKey": "L30_S1",
+            "category": "Τα χαρακτηριστικά του πληθυσμού της Ευρώπης"
+          }
+        ]
+      }
+    }
+  },
+  "L31": {
+    "title": "Μάθημα 31 • Ο πληθυσμός της Ελλάδας",
+    "short": "Μάθημα 31",
+    "sections": {
+      "L31_S1": {
+        "title": "Ο πληθυσμός της Ελλάδας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η έκταση της Ελλάδας είναι περίπου:",
+            "options": [
+              "13.195 τετρ. χλμ.",
+              "131.957 τετρ. χλμ.",
+              "1.319.570 τετρ. χλμ.",
+              "31.957 τετρ. χλμ."
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          },
+          {
+            "prompt": "Σύμφωνα με την απογραφή του 2001, ο πληθυσμός της Ελλάδας ήταν περίπου:",
+            "options": [
+              "1,1 εκατομμύριο",
+              "5,5 εκατομμύρια",
+              "10,96 εκατομμύρια",
+              "20 εκατομμύρια"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          },
+          {
+            "prompt": "Η πυκνότητα πληθυσμού της Ελλάδας είναι περίπου:",
+            "options": [
+              "83 κάτοικοι ανά τετρ. χλμ.",
+              "38 κάτοικοι ανά τετρ. χλμ.",
+              "183 κάτοικοι ανά τετρ. χλμ.",
+              "8 κάτοικοι ανά τετρ. χλμ."
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          },
+          {
+            "prompt": "Ένα από τα χαρακτηριστικά του πληθυσμού της Ελλάδας είναι:",
+            "options": [
+              "η ομοιόμορφη κατανομή του",
+              "η πολύ χαμηλή αστικοποίηση",
+              "η ανομοιόμορφη κατανομή του",
+              "η απουσία αλλοδαπών"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          },
+          {
+            "prompt": "Η Ελλάδα παρουσιάζει επίσης:",
+            "options": [
+              "έντονο δημογραφικό πρόβλημα",
+              "πολύ υψηλή γεννητικότητα χωρίς γήρανση",
+              "μηδενική μετανάστευση",
+              "μηδενική αστικοποίηση"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          },
+          {
+            "prompt": "Γεωγραφική αιτία που δυσκολεύει τη συντήρηση μεγάλου πληθυσμού σε πολλές περιοχές της χώρας είναι:",
+            "options": [
+              "το ορεινό ανάγλυφο και οι λιγοστές καλλιεργήσιμες εκτάσεις",
+              "η ύπαρξη πολλών τροπικών δασών",
+              "η απουσία νησιών",
+              "η μεγάλη έρημος"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          },
+          {
+            "prompt": "Ιστορικό γεγονός που συνέβαλε στην αύξηση του πληθυσμού μέσα στα όρια της χώρας ήταν:",
+            "options": [
+              "η ένταξη στην Ε.Ε.",
+              "η άφιξη των προσφύγων της Μικρασιατικής Καταστροφής το 1922",
+              "η ανακάλυψη πετρελαίου",
+              "η διάνοιξη της Διώρυγας του Σουέζ"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          },
+          {
+            "prompt": "Στο παρελθόν πολλοί Έλληνες αναζήτησαν καλύτερη ζωή στο εξωτερικό λόγω:",
+            "options": [
+              "οικονομικής ανέχειας και δύσκολων συνθηκών διαβίωσης",
+              "υπερβολικού πλούτου",
+              "πολύ υψηλής βιομηχανικής ανάπτυξης",
+              "έλλειψης θάλασσας"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L31",
+            "sectionKey": "L31_S1",
+            "category": "Ο πληθυσμός της Ελλάδας"
+          }
+        ]
+      }
+    }
+  },
+  "L32": {
+    "title": "Μάθημα 32 • Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων",
+    "short": "Μάθημα 32",
+    "sections": {
+      "L32_S1": {
+        "title": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Στην ευρωπαϊκή ήπειρο μιλιούνται:",
+            "options": [
+              "μόνο σλαβικές γλώσσες",
+              "αρκετές γλώσσες που ανήκουν και σε μεγάλες γλωσσικές ομάδες",
+              "μόνο δύο γλώσσες",
+              "καμία γλώσσα με κοινά χαρακτηριστικά"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          },
+          {
+            "prompt": "Μεγάλες γλωσσικές ομάδες της Ευρώπης είναι:",
+            "options": [
+              "λατινικές, γερμανικές, σλαβικές",
+              "μόνο ελληνικές και τουρκικές",
+              "μόνο ασιατικές",
+              "αφρικανικές και αμερικανικές"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          },
+          {
+            "prompt": "Σε αρκετά ευρωπαϊκά κράτη υπάρχουν περισσότερες από μία επίσημες γλώσσες, όπως:",
+            "options": [
+              "Ελβετία, Βέλγιο, Κύπρος",
+              "Ισλανδία μόνο",
+              "Ελλάδα μόνο",
+              "Ρωσία μόνο"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          },
+          {
+            "prompt": "Στην Ευρωπαϊκή Ένωση οι επίσημες γλώσσες είναι:",
+            "options": [
+              "12",
+              "15",
+              "23",
+              "46"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          },
+          {
+            "prompt": "Η αγγλική γλώσσα θεωρείται σήμερα:",
+            "options": [
+              "τοπική γλώσσα της Μεσογείου",
+              "διεθνής γλώσσα",
+              "νεκρή γλώσσα",
+              "γλώσσα που μιλιέται μόνο στην Ευρώπη"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          },
+          {
+            "prompt": "Για τον ευρωπαϊκό πολιτισμό η ελληνική γλώσσα είναι σημαντική, γιατί:",
+            "options": [
+              "έχει πάψει να μιλιέται",
+              "σε αυτή γράφτηκαν σπουδαία έργα και πολλοί επιστημονικοί όροι έχουν ελληνική προέλευση",
+              "είναι η μόνη γλώσσα της Ευρώπης",
+              "δεν επηρέασε κανένα αλφάβητο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          },
+          {
+            "prompt": "Οι περισσότεροι Ευρωπαίοι είναι:",
+            "options": [
+              "βουδιστές",
+              "χριστιανοί",
+              "ινδουιστές",
+              "χωρίς κανένα θρήσκευμα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          },
+          {
+            "prompt": "Βασική πολιτισμική αξία της Ευρώπης είναι:",
+            "options": [
+              "η ανεξιθρησκία",
+              "η κατάργηση της εκπαίδευσης",
+              "η απαγόρευση έκφρασης",
+              "η έλλειψη πολιτικών δικαιωμάτων"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L32",
+            "sectionKey": "L32_S1",
+            "category": "Τα πολιτισμικά χαρακτηριστικά των Ευρωπαίων"
+          }
+        ]
+      }
+    }
+  },
+  "L34": {
+    "title": "Μάθημα 34 • Οι μεγάλες πόλεις της Ελλάδας",
+    "short": "Μάθημα 34",
+    "sections": {
+      "L34_S1": {
+        "title": "Οι μεγάλες πόλεις της Ελλάδας",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Στο ξεκίνημα του 21ου αιώνα περίπου πόσοι στους δέκα κατοίκους της Ελλάδας ζούσαν σε πόλεις;",
+            "options": [
+              "δύο",
+              "τέσσερις",
+              "έξι",
+              "εννέα"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          },
+          {
+            "prompt": "Οι δύο μεγάλες πόλεις που συγκεντρώνουν σχεδόν το 40% του πληθυσμού της χώρας είναι:",
+            "options": [
+              "Αθήνα και Πάτρα",
+              "Αθήνα και Θεσσαλονίκη",
+              "Θεσσαλονίκη και Ηράκλειο",
+              "Λάρισα και Βόλος"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          },
+          {
+            "prompt": "Μόνο στην Αθήνα ζουν περίπου:",
+            "options": [
+              "τρεις στους δέκα κατοίκους της Ελλάδας",
+              "ένας στους δέκα",
+              "οκτώ στους δέκα",
+              "όλοι οι κάτοικοι της Αττικής μόνο"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          },
+          {
+            "prompt": "Οι περισσότερες από τις 15 μεγαλύτερες πόλεις της Ελλάδας είναι:",
+            "options": [
+              "ορεινά χωριά",
+              "πρωτεύουσες των νομών τους",
+              "νησιά",
+              "πόλεις χωρίς διοικητικό ρόλο"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          },
+          {
+            "prompt": "Οι περιοχές που συγκεντρώνουν μεγάλο αριθμό κατοίκων είναι συνήθως:",
+            "options": [
+              "υψηλού υψομέτρου και μακριά από τη θάλασσα",
+              "χαμηλού υψομέτρου και κοντά στη θάλασσα",
+              "μόνο παγετώδεις",
+              "μόνο άνυδρες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          },
+          {
+            "prompt": "Από τις τέσσερις μεγαλύτερες ελληνικές πόλεις οι τρεις είναι:",
+            "options": [
+              "ορεινές",
+              "λιμάνια",
+              "συνοριακές",
+              "πρωτεύουσες νησιωτικών κρατών"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          },
+          {
+            "prompt": "Μόνο μία ορεινή πόλη βρίσκεται στις 15 μεγαλύτερες της χώρας. Αυτή είναι:",
+            "options": [
+              "η Κοζάνη",
+              "τα Ιωάννινα",
+              "η Τρίπολη",
+              "η Καρδίτσα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          },
+          {
+            "prompt": "Η υψηλή αστικοποίηση στην Ελλάδα άρχισε να γίνεται έντονη μετά:",
+            "options": [
+              "τον Β΄ Παγκόσμιο Πόλεμο",
+              "την αρχαιότητα",
+              "το 1821",
+              "το 2004"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L34",
+            "sectionKey": "L34_S1",
+            "category": "Οι μεγάλες πόλεις της Ελλάδας"
+          }
+        ]
+      }
+    }
+  },
+  "L35": {
+    "title": "Μάθημα 35 • Οι Βαλκανικές χώρες",
+    "short": "Μάθημα 35",
+    "sections": {
+      "L35_S1": {
+        "title": "Οι Βαλκανικές χώρες",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Η Βαλκανική Χερσόνησος είναι η:",
+            "options": [
+              "δυτικότερη χερσόνησος της νότιας Ευρώπης",
+              "ανατολικότερη χερσόνησος της νότιας Ευρώπης",
+              "μοναδική χερσόνησος της Ευρώπης",
+              "βορειότερη χερσόνησος της Ευρώπης"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          },
+          {
+            "prompt": "Ανατολικά η Βαλκανική βρέχεται από:",
+            "options": [
+              "τη Βόρεια Θάλασσα",
+              "τη Μαύρη Θάλασσα και τη Θάλασσα του Μαρμαρά",
+              "τον Ατλαντικό Ωκεανό",
+              "τη Βαλτική"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          },
+          {
+            "prompt": "Τα βόρεια όρια της Βαλκανικής Χερσονήσου θεωρείται ότι ευθυγραμμίζονται με τη γραμμή των ποταμών:",
+            "options": [
+              "Ρήνου και Έλβα",
+              "Σάβου και Δούναβη",
+              "Βόλγα και Ντον",
+              "Αξιού και Έβρου"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          },
+          {
+            "prompt": "Η Βαλκανική πήρε το όνομά της από:",
+            "options": [
+              "τη μεγάλη οροσειρά του Αίμου",
+              "τον ποταμό Δούναβη",
+              "τη Θάλασσα του Μαρμαρά",
+              "τη Βλαχία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          },
+          {
+            "prompt": "Στη Βαλκανική Χερσόνησο βρίσκονται χώρες όπως:",
+            "options": [
+              "Αλβανία, Ελλάδα, Βουλγαρία, Σερβία",
+              "Ισπανία, Πορτογαλία, Ιρλανδία",
+              "Σουηδία, Νορβηγία, Φινλανδία",
+              "Γαλλία, Βέλγιο, Ολλανδία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          },
+          {
+            "prompt": "Οι βαλκανικές χώρες είναι γενικά:",
+            "options": [
+              "μεγάλες σε έκταση και πληθυσμό όπως οι δυτικοευρωπαϊκές",
+              "μικρές σε έκταση και σε πληθυσμό",
+              "όλες πολύ πλούσιες",
+              "όλες ακατοίκητες"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          },
+          {
+            "prompt": "Στις μόνες ευρωπαϊκές χώρες όπου επικρατεί ο μωαμεθανισμός, σύμφωνα με το μάθημα, περιλαμβάνονται:",
+            "options": [
+              "Ελλάδα και Κύπρος",
+              "Τουρκία, Αλβανία, Βοσνία-Ερζεγοβίνη",
+              "Γαλλία και Γερμανία",
+              "Σερβία και Βουλγαρία"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          },
+          {
+            "prompt": "Η οικονομία αρκετών βαλκανικών χωρών είναι:",
+            "options": [
+              "περισσότερο αναπτυγμένη από της δυτικής Ευρώπης",
+              "λιγότερο αναπτυγμένη από της δυτικής Ευρώπης",
+              "ίδια παντού",
+              "βασισμένη μόνο σε διαστημική τεχνολογία"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L35",
+            "sectionKey": "L35_S1",
+            "category": "Οι Βαλκανικές χώρες"
+          }
+        ]
+      }
+    }
+  },
+  "L36": {
+    "title": "Μάθημα 36 • Οι γείτονές μας στα Βαλκάνια",
+    "short": "Μάθημα 36",
+    "sections": {
+      "L36_S1": {
+        "title": "Οι γείτονές μας στα Βαλκάνια",
+        "short": "Ερωτήσεις",
+        "questions": [
+          {
+            "prompt": "Οι γείτονές μας στα Βαλκάνια είναι:",
+            "options": [
+              "Αλβανία, Βουλγαρία, Δημοκρατία της Βόρειας Μακεδονίας, Τουρκία",
+              "Ιταλία, Γαλλία, Ισπανία, Πορτογαλία",
+              "Σερβία, Κροατία, Σλοβενία, Αυστρία",
+              "Ρουμανία, Ουγγαρία, Πολωνία, Τσεχία"
+            ],
+            "correctIndex": 0,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          },
+          {
+            "prompt": "Με την Αλβανία και την Τουρκία η Ελλάδα έχει, εκτός από ηπειρωτικά, και:",
+            "options": [
+              "μόνο αεροπορικά σύνορα",
+              "θαλάσσια σύνορα",
+              "ποταμικά σύνορα",
+              "καθόλου σύνορα"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          },
+          {
+            "prompt": "Η πρωτεύουσα της Αλβανίας είναι:",
+            "options": [
+              "η Σόφια",
+              "τα Σκόπια",
+              "τα Τίρανα",
+              "η Άγκυρα"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          },
+          {
+            "prompt": "Η οικονομία της Αλβανίας είναι κυρίως:",
+            "options": [
+              "βιομηχανική",
+              "αγροτική",
+              "μόνο ναυτιλιακή",
+              "μόνο τουριστική"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          },
+          {
+            "prompt": "Η Βουλγαρία βρέχεται από:",
+            "options": [
+              "την Αδριατική Θάλασσα",
+              "τη Μαύρη Θάλασσα",
+              "το Ιόνιο Πέλαγος",
+              "τη Βαλτική"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          },
+          {
+            "prompt": "Η Δημοκρατία της Βόρειας Μακεδονίας είναι:",
+            "options": [
+              "νησιωτική χώρα",
+              "περίκλειστη χώρα",
+              "ωκεάνια χώρα",
+              "χώρα της δυτικής Ευρώπης"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          },
+          {
+            "prompt": "Η πρωτεύουσα της Δημοκρατίας της Βόρειας Μακεδονίας είναι:",
+            "options": [
+              "τα Τίρανα",
+              "η Σόφια",
+              "τα Σκόπια",
+              "η Κωνσταντινούπολη"
+            ],
+            "correctIndex": 2,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          },
+          {
+            "prompt": "Ο ποταμός που διασχίζει τη Δημοκρατία της Βόρειας Μακεδονίας από βορρά προς νότο είναι:",
+            "options": [
+              "ο Έβρος",
+              "ο Βαρδάρης (Αξιός)",
+              "ο Νέστος",
+              "ο Στρυμόνας"
+            ],
+            "correctIndex": 1,
+            "chapterKey": "L36",
+            "sectionKey": "L36_S1",
+            "category": "Οι γείτονές μας στα Βαλκάνια"
+          }
+        ]
+      }
+    }
+  }
+};
+
+    const modeSelect = document.getElementById("modeSelect");
+    const chapterSelect = document.getElementById("chapterSelect");
+    const questionCountSelect = document.getElementById("questionCount");
+    const avatar1Select = document.getElementById("avatar1");
+    const avatar2Select = document.getElementById("avatar2");
+    const player1AvatarDisplay = document.getElementById("player1AvatarDisplay");
+    const player2AvatarDisplay = document.getElementById("player2AvatarDisplay");
+    const player1Card = document.getElementById("player1Card");
+    const player2Card = document.getElementById("player2Card");
+    const p1ScoreEl = document.getElementById("p1Score");
+    const p2ScoreEl = document.getElementById("p2Score");
+    const phaseLabelEl = document.getElementById("phaseLabel");
+    const roundInfoEl = document.getElementById("roundInfo");
+    const selectionInfoEl = document.getElementById("selectionInfo");
+    const turnTextEl = document.getElementById("turnText");
+    const categoryLabelEl = document.getElementById("categoryLabel");
+    const questionEl = document.getElementById("question");
+    const answersEl = document.getElementById("answers");
+    const messageEl = document.getElementById("message");
+    const ballEl = document.getElementById("ball");
+    const countdownOverlay = document.getElementById("countdownOverlay");
+    const countdownNumber = document.getElementById("countdownNumber");
+    const confettiLayer = document.getElementById("confettiLayer");
+
+    let gameQuestions = [];
+    let currentQuestion = null;
+    let currentIndex = 0;
+    let activePlayer = 1;
+    let p1Score = 0;
+    let p2Score = 0;
+    let locked = false;
+    let gameStarted = false;
+
+    modeSelect.addEventListener("change", updateSelectionOptions);
+    avatar1Select.addEventListener("change", syncAvatars);
+    avatar2Select.addEventListener("change", syncAvatars);
+    window.addEventListener("resize", applyAutoFitScaling);
+
+    updateSelectionOptions();
+    syncAvatars();
+    renderIdleState();
+
+    function getAllQuestions() {
+      return Object.values(chapterData).flatMap(ch => Object.values(ch.sections).flatMap(sec => sec.questions));
+    }
+
+    function getChapterQuestions(chapterKey) {
+      const chapter = chapterData[chapterKey];
+      return chapter ? Object.values(chapter.sections).flatMap(sec => sec.questions) : [];
+    }
+
+    function getSectionQuestions(sectionKey) {
+      for (const chapter of Object.values(chapterData)) {
+        if (chapter.sections[sectionKey]) return chapter.sections[sectionKey].questions;
+      }
+      return [];
+    }
+
+    function updateSelectionOptions() {
+      const mode = modeSelect.value;
+      chapterSelect.innerHTML = "";
+
+      if (mode === "chapter") {
+        Object.entries(chapterData).forEach(([key, chapter]) => {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = chapter.title;
+          chapterSelect.appendChild(option);
+        });
+        chapterSelect.disabled = false;
+        chapterSelect.style.opacity = "1";
+      } else if (mode === "section") {
+        Object.values(chapterData).forEach(chapter => {
+          Object.entries(chapter.sections).forEach(([sectionKey, section]) => {
+            const option = document.createElement("option");
+            option.value = sectionKey;
+            option.textContent = `${chapter.short} • ${section.title}`;
+            chapterSelect.appendChild(option);
+          });
+        });
+        chapterSelect.disabled = false;
+        chapterSelect.style.opacity = "1";
+      } else {
+        const option = document.createElement("option");
+        option.value = "all";
+        option.textContent = "Όλη η ύλη Γεωγραφίας (33 μαθήματα)";
+        chapterSelect.appendChild(option);
+        chapterSelect.disabled = true;
+        chapterSelect.style.opacity = "0.55";
+      }
+    }
+
+    function syncAvatars() {
+      player1AvatarDisplay.textContent = avatar1Select.value;
+      player2AvatarDisplay.textContent = avatar2Select.value;
+    }
+
+    function renderIdleState() {
+      gameStarted = false;
+      phaseLabelEl.textContent = "Αναμονή έναρξης";
+      roundInfoEl.textContent = "Γύρος 0 / 0";
+      turnTextEl.textContent = "Πάτησε «Έναρξη / Νέο Παιχνίδι» για να ξεκινήσει ο αγώνας.";
+      categoryLabelEl.textContent = "Μάθημα: -";
+      questionEl.textContent = "Ο χώρος ερωτήσεων θα ενεργοποιηθεί μόλις επιλεγεί μάθημα και πατηθεί η έναρξη.";
+      questionEl.classList.add("idle");
+      answersEl.innerHTML = "";
+      answersEl.classList.add("idle");
+      messageEl.textContent = "";
+      ballEl.style.left = "50%";
+      player1Card.classList.remove("active-turn", "winner-glow");
+      player2Card.classList.remove("active-turn", "winner-glow");
+    }
+
+    function applyAutoFitScaling() {
+      if (window.innerWidth <= 820) {
+        document.documentElement.style.setProperty("--game-scale", "1");
+        return;
+      }
+
+      const viewportW = window.innerWidth - 12;
+      const viewportH = window.innerHeight - 12;
+      const designW = 1320;
+      const designH = 780;
+      const scaleX = viewportW / designW;
+      const scaleY = viewportH / designH;
+      const scale = Math.min(scaleX, scaleY, 1);
+      document.documentElement.style.setProperty("--game-scale", String(scale));
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildQuestionSet() {
+      const mode = modeSelect.value;
+      const count = parseInt(questionCountSelect.value, 10);
+      let source = [];
+      let label = "";
+
+      if (mode === "all") {
+        label = "Τυχαίες ερωτήσεις από όλη την ύλη Γεωγραφίας (33 μαθήματα)";
+        source = getAllQuestions();
+      } else if (mode === "chapter") {
+        const ch = chapterSelect.value;
+        label = chapterData[ch]?.title || "Συγκεκριμένο μάθημα";
+        source = getChapterQuestions(ch);
+      } else {
+        const sectionKey = chapterSelect.value;
+        let sectionTitle = "Συγκεκριμένο θέμα";
+        for (const chapter of Object.values(chapterData)) {
+          if (chapter.sections[sectionKey]) {
+            sectionTitle = `${chapter.short} • ${chapter.sections[sectionKey].title}`;
+            break;
+          }
+        }
+        label = sectionTitle;
+        source = getSectionQuestions(sectionKey);
+      }
+
+      selectionInfoEl.textContent = label;
+      const shuffled = shuffle(source);
+      if (count <= shuffled.length) return shuffled.slice(0, count);
+
+      const out = [];
+      while (out.length < count) out.push(...shuffle(source));
+      return out.slice(0, count);
+    }
+
+    function playTone(freq, start, duration, gainAmount, type = "sine") {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!window.__audioCtx) window.__audioCtx = new AudioContextClass();
+
+      const ctx = window.__audioCtx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = type;
+      osc.frequency.value = freq;
+
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(gainAmount, start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + duration + 0.03);
+      return ctx;
+    }
+
+    function ensureAudioReady() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!window.__audioCtx) window.__audioCtx = new AudioContextClass();
+      if (window.__audioCtx.state === "suspended") {
+        window.__audioCtx.resume();
+      }
+      return window.__audioCtx;
+    }
+
+    function playStartSound() {
+      try {
+        const ctx = ensureAudioReady();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playTone(523.25, now, 0.20, 0.22);
+        playTone(659.25, now + 0.12, 0.20, 0.24);
+        playTone(783.99, now + 0.24, 0.24, 0.28);
+      } catch (e) {}
+    }
+
+    function playCorrectSound() {
+      try {
+        const ctx = ensureAudioReady();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playTone(587.33, now, 0.15, 0.22);
+        playTone(783.99, now + 0.08, 0.22, 0.28);
+      } catch (e) {}
+    }
+
+    function playWrongSound() {
+      try {
+        const ctx = ensureAudioReady();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playTone(392.00, now, 0.22, 0.20, "triangle");
+        playTone(293.66, now + 0.09, 0.26, 0.22, "triangle");
+      } catch (e) {}
+    }
+
+    function startFromWelcome() {
+      syncAvatars();
+      ensureAudioReady();
+      document.getElementById("welcomeScreen").style.display = "none";
+      document.getElementById("gameScreen").style.display = "block";
+      renderIdleState();
+      applyAutoFitScaling();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function startGame() {
+      syncAvatars();
+      ensureAudioReady();
+      renderIdleState();
+      startCountdownThenGame();
+    }
+
+    function startCountdownThenGame() {
+      countdownOverlay.style.display = "flex";
+      const steps = ["3", "2", "1", "Πάμε!"];
+      let idx = 0;
+
+      function showStep() {
+        countdownNumber.textContent = steps[idx];
+        countdownNumber.style.animation = "none";
+        void countdownNumber.offsetWidth;
+        countdownNumber.style.animation = "popIn 0.9s ease";
+
+        if (steps[idx] === "Πάμε!") {
+          playStartSound();
+        }
+
+        idx++;
+        if (idx < steps.length) {
+          setTimeout(showStep, 760);
+        } else {
+          setTimeout(() => {
+            countdownOverlay.style.display = "none";
+            beginActualGame();
+          }, 640);
+        }
+      }
+
+      showStep();
+    }
+
+    function beginActualGame() {
+      const builtSet = buildQuestionSet();
+      gameQuestions.length = 0;
+      gameQuestions.push(...builtSet);
+      currentIndex = 0;
+      activePlayer = 1;
+      p1Score = 0;
+      p2Score = 0;
+      locked = false;
+      gameStarted = true;
+      updateScores();
+      updateTurnUI();
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentIndex >= gameQuestions.length) {
+        endGame();
+        return;
+      }
+
+      currentQuestion = gameQuestions[currentIndex];
+      locked = false;
+      questionEl.textContent = currentQuestion.prompt;
+      questionEl.classList.remove("idle");
+      categoryLabelEl.textContent = `Θέμα: ${currentQuestion.category}`;
+      phaseLabelEl.textContent = currentQuestion.chapterKey && chapterData[currentQuestion.chapterKey]
+        ? chapterData[currentQuestion.chapterKey].title
+        : currentQuestion.category;
+      roundInfoEl.textContent = `Γύρος ${currentIndex + 1} / ${gameQuestions.length}`;
+      messageEl.textContent = "";
+      ballEl.style.left = "50%";
+
+      renderAnswers();
+      updateTurnUI();
+    }
+
+    function renderAnswers() {
+      answersEl.innerHTML = "";
+      answersEl.classList.remove("idle");
+      currentQuestion.options.forEach((option, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "answerBtn";
+        btn.textContent = option;
+        btn.addEventListener("click", () => submitChoice(idx, btn));
+        answersEl.appendChild(btn);
+      });
+    }
+
+    function submitChoice(choiceIndex, clickedButton) {
+      if (locked || !gameStarted) return;
+      locked = true;
+
+      const buttons = [...document.querySelectorAll(".answerBtn")];
+      buttons.forEach(btn => btn.disabled = true);
+
+      const correctButton = buttons[currentQuestion.correctIndex];
+
+      if (choiceIndex === currentQuestion.correctIndex) {
+        clickedButton.classList.add("correct");
+        playCorrectSound();
+
+        if (activePlayer === 1) {
+          p1Score++;
+          ballEl.style.left = "22%";
+          messageEl.textContent = "Σωστό! Η Ομάδα 1 παίρνει πόντο.";
+        } else {
+          p2Score++;
+          ballEl.style.left = "78%";
+          messageEl.textContent = "Σωστό! Η Ομάδα 2 παίρνει πόντο.";
+        }
+      } else {
+        clickedButton.classList.add("wrong");
+        if (correctButton) correctButton.classList.add("correct");
+        playWrongSound();
+        messageEl.textContent = `Λάθος. Σωστή απάντηση: ${currentQuestion.options[currentQuestion.correctIndex]}`;
+      }
+
+      updateScores();
+
+      setTimeout(() => {
+        currentIndex++;
+        activePlayer = activePlayer === 1 ? 2 : 1;
+        nextQuestion();
+      }, 1250);
+    }
+
+    function updateScores() {
+      p1ScoreEl.textContent = p1Score;
+      p2ScoreEl.textContent = p2Score;
+    }
+
+    function updateTurnUI() {
+      player1Card.classList.remove("active-turn");
+      player2Card.classList.remove("active-turn");
+
+      if (!gameStarted) return;
+
+      if (activePlayer === 1) {
+        player1Card.classList.add("active-turn");
+        turnTextEl.textContent = `Σειρά της Παίκτριας/του Παίκτη - Ομάδας 1 ${avatar1Select.value}`;
+      } else {
+        player2Card.classList.add("active-turn");
+        turnTextEl.textContent = `Σειρά της Παίκτριας/του Παίκτη - Ομάδας 2 ${avatar2Select.value}`;
+      }
+    }
+
+    function launchConfetti() {
+      confettiLayer.innerHTML = "";
+      const colors = ["#1f8f6b", "#2e73c5", "#54b948", "#ffd451", "#20b45b", "#ffffff"];
+      for (let i = 0; i < 90; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = `${3 + Math.random() * 2}s`;
+        piece.style.animationDelay = `${Math.random() * 0.8}s`;
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        confettiLayer.appendChild(piece);
+      }
+      setTimeout(() => confettiLayer.innerHTML = "", 6000);
+    }
+
+    function endGame() {
+      answersEl.innerHTML = "";
+      answersEl.classList.add("idle");
+      categoryLabelEl.textContent = "Τέλος παιχνιδιού";
+      phaseLabelEl.textContent = "Ο αγώνας ολοκληρώθηκε";
+      roundInfoEl.textContent = "Τελικό σκορ";
+      turnTextEl.textContent = "Μπράβο και στις δύο ομάδες της Γεωγραφίας!";
+      gameStarted = false;
+
+      player1Card.classList.remove("active-turn");
+      player2Card.classList.remove("active-turn");
+
+      if (p1Score > p2Score) {
+        questionEl.textContent = `Νικήτρια: Ομάδα 1 ${avatar1Select.value}!`;
+        questionEl.classList.remove("idle");
+        player1Card.classList.add("winner-glow");
+        launchConfetti();
+      } else if (p2Score > p1Score) {
+        questionEl.textContent = `Νικήτρια: Ομάδα 2 ${avatar2Select.value}!`;
+        questionEl.classList.remove("idle");
+        player2Card.classList.add("winner-glow");
+        launchConfetti();
+      } else {
+        questionEl.textContent = "Ισοπαλία!";
+        questionEl.classList.remove("idle");
+        launchConfetti();
+      }
+
+      messageEl.textContent = `Τελικό σκορ: Ομάδα 1 = ${p1Score} | Ομάδα 2 = ${p2Score}`;
+      ballEl.style.left = "50%";
+    }
+
+    applyAutoFitScaling();
+  </script>
+</body>
+</html>
